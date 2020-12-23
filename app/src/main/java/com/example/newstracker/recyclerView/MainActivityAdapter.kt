@@ -43,16 +43,12 @@ class MainActivityAdapter : RecyclerView.Adapter<MainActivityAdapter.MainActivit
         private val rvLogo = itemView.findViewById<ImageView>(R.id.rv_logo)
         private val rvTitle = itemView.findViewById<TextView>(R.id.rv_title)
         private val rvDescription = itemView.findViewById<TextView>(R.id.rv_description)
+        private val rvSource = itemView.findViewById<TextView>(R.id.rv_source)
 
         fun bind(article : Article){
-            var shortTitle = article.title.take(75)
-            if(article.title.length > 75){
-                shortTitle += "..."
-            }
-
-            rvTitle.text = shortTitle
+            rvTitle.text = article.title
             rvDescription.text = article.description
-
+            rvSource.text = article.source.name
         }
     }
 

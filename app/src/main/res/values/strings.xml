@@ -1,9 +1,14 @@
 <resources>
     <string name="app_name">NewsTracker</string>
 
-<!--    Recycler View Main Activity-->
+    <!--    Recycler View Main Activity-->
     <string name="rv_main_logo_default">This is a default image</string>
     <string name="rv_main_title_default">Default Title</string>
     <string name="rv_main_description_default">Default Description</string>
+    <string name="rv_main_source_default">Default Source</string>
+
+    <string name="bottom_nav_saved">Saved Articles</string>
+    <string name="bottom_nav_search">Search</string>
+    <string name="bottom_nav_settings">Settings</string>
 
 </resources>
