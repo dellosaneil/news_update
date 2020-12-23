@@ -1,6 +1,5 @@
 package com.example.newstracker.viewModel
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,10 +16,14 @@ class MainVM(private val repository: Repository) : ViewModel() {
 
     fun getArticles() = rawArticle
 
-    fun retrieveArticles() {
+    fun retrieveArticles(category : String = "",
+                         country : String = "ph",
+                         pageNumber : Int = 1,
+                         sources : String = "",
+                         language : String = "en") {
         viewModelScope.launch(Dispatchers.IO) {
-            val tempValue = repository.retrieveArticles()
-            withContext(Main){
+            val tempValue = repository.repositoryArticles(category, country, pageNumber, sources, language)
+            withContext(Main) {
                 rawArticle.value = tempValue
             }
         }

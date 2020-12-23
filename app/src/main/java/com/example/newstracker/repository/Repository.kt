@@ -5,6 +5,11 @@ import com.example.newstracker.retrofit.dataclass.NewsResponse
 import retrofit2.Response
 
 class Repository {
-    suspend fun retrieveArticles(): Response<NewsResponse> = RetrofitInstance.api.getBreakingNews()
+    suspend fun repositoryArticles(category : String,
+                                   country : String,
+                                   pageNumber : Int,
+                                   sources : String,
+                                   language : String
+    ): Response<NewsResponse> = RetrofitInstance.api.getBreakingNews(category, country, pageNumber, sources, language)
 
 }
