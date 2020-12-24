@@ -14,10 +14,23 @@
         android:id="@+id/search_fragment"
         android:name="com.example.newstracker.bottomNavigation.SearchFragment"
         android:label="fragment_home_fragment"
-        tools:layout="@layout/fragment_search" />
+        tools:layout="@layout/fragment_search" >
+        <action
+            android:id="@+id/searchFragment_addNewCategory"
+            app:destination="@id/userNewsPreference" />
+    </fragment>
     <fragment
         android:id="@+id/settings_fragment"
         android:name="com.example.newstracker.bottomNavigation.SettingsFragment"
         android:label="fragment_settings_fragment"
         tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@+id/userNewsPreference"
+        android:name="com.example.newstracker.fragments.UserNewsPreference"
+        android:label="fragment_user_news_preference"
+        tools:layout="@layout/fragment_user_news_preference" >
+        <action
+            android:id="@+id/addNewCategory_searchFragment"
+            app:destination="@id/search_fragment" />
+    </fragment>
 </navigation>

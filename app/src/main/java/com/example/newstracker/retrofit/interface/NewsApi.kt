@@ -14,10 +14,8 @@ interface NewsApi {
         category : String = "",
         @Query("country")
         country : String = "ph",
-        @Query("page")
-        pageNumber : Int = 1,
-        @Query("sources")
-        sources : String = "",
+        @Query("q")
+        keyword : String,
         @Query("language")
         language : String = "en",
         @Query("apiKey")

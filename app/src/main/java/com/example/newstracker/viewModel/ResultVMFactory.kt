@@ -4,9 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.newstracker.repository.Repository
 
-class MainVMFactory(private val repository: Repository) : ViewModelProvider.Factory {
+class ResultVMFactory(private val repository: Repository) : ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return MainVM(repository) as T
+        return ResultVM(repository) as T
     }
 
 }

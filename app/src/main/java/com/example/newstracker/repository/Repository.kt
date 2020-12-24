@@ -7,9 +7,8 @@ import retrofit2.Response
 class Repository {
     suspend fun repositoryArticles(category : String,
                                    country : String,
-                                   pageNumber : Int,
-                                   sources : String,
+                                   keyword : String,
                                    language : String
-    ): Response<NewsResponse> = RetrofitInstance.api.getBreakingNews(category, country, pageNumber, sources, language)
+    ): Response<NewsResponse> = RetrofitInstance.api.getBreakingNews(category, country, keyword, language)
 
 }

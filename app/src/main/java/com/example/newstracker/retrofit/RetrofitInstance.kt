@@ -6,8 +6,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class RetrofitInstance {
-    companion object {
 
+    // Singleton Pattern to make sure only one instance of Retrofit is ever created
+    companion object {
         private val retrofit by lazy {
             Retrofit.Builder()
                 .baseUrl(BASE_URL)

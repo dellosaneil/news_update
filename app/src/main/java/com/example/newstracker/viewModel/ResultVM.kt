@@ -11,18 +11,20 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.Response
 
-class MainVM(private val repository: Repository) : ViewModel() {
+class ResultVM(private val repository: Repository) : ViewModel() {
     private val rawArticle: MutableLiveData<Response<NewsResponse>> = MutableLiveData()
 
     fun getArticles() = rawArticle
 
-    fun retrieveArticles(category : String = "",
-                         country : String = "ph",
-                         pageNumber : Int = 1,
-                         sources : String = "",
-                         language : String = "en") {
+    fun retrieveArticles(
+        category: String = "",
+        country: String = "ph",
+        keyword: String = "",
+        language: String = "en"
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val tempValue = repository.repositoryArticles(category, country, pageNumber, sources, language)
+            val tempValue =
+                repository.repositoryArticles(category, country, keyword, language)
             withContext(Main) {
                 rawArticle.value = tempValue
             }

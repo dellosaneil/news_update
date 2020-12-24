@@ -17,13 +17,9 @@ class MainActivity : AppCompatActivity() {
         initializeBottomNavigation()
     }
 
-    private fun initializeBottomNavigation(){
+    // function to connect Navigation Component to Bottom Navigation View
+    private fun initializeBottomNavigation() {
         val navController = findNavController(R.id.fragment)
         binding.bottomNavigation.setupWithNavController(navController)
-
     }
-
-
-
-
 }
