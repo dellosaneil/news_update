@@ -2,11 +2,11 @@ package com.example.newstracker.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.newstracker.repository.Repository
+import com.example.newstracker.repository.RetrofitRepository
 
-class ResultVMFactory(private val repository: Repository) : ViewModelProvider.Factory {
+class ResultVMFactory(private val retrofitRepository: RetrofitRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return ResultVM(repository) as T
+        return ResultVM(retrofitRepository) as T
     }
 
 }

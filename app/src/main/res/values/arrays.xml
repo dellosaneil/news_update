@@ -11,7 +11,7 @@
         <item>Technology</item>
     </string-array>
     <string-array name="country_list_values">
-        <item>All</item>
+        <item></item>
         <item>ae</item>
         <item>ar</item>
         <item>at</item>
@@ -132,7 +132,7 @@
 
     </string-array>
     <string-array name="language_list_values">
-        <item>All</item>
+        <item></item>
         <item>ar</item>
         <item>de</item>
         <item>en</item>
@@ -165,17 +165,3 @@
     </string-array>
 
 </resources>
-
-
-    <!--r de en es fr he it nl no pt ru se ud zh-->
-
-
-
-
-
-
-
-
-
-
-
