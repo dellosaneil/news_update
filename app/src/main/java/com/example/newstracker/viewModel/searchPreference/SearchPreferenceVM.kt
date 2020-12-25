@@ -9,7 +9,7 @@ import com.example.newstracker.room.NewsTrackerDatabase
 import com.example.newstracker.room.entity.PreferenceEntity
 import kotlinx.coroutines.InternalCoroutinesApi
 
-@InternalCoroutinesApi
+
 class SearchPreferenceVM(application: Application) : AndroidViewModel(application) {
 
     private val allPreferences : LiveData<List<PreferenceEntity>>
@@ -20,6 +20,7 @@ class SearchPreferenceVM(application: Application) : AndroidViewModel(applicatio
         repository = DatabaseRepository(dao)
         allPreferences = repository.allData
     }
+
 
     fun retrieveAllPreference() = allPreferences
 

@@ -9,7 +9,7 @@ data class PreferenceEntity(
     @PrimaryKey
     val label: String,
     val category : String,
-    val language : String,
     val country : String,
-    val keyword : String
+    val keyword : String,
+    val language : String
 )

@@ -19,7 +19,7 @@
             android:contentDescription="@string/rv_main_logo_default"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_news" />
+            app:srcCompat="@drawable/ic_news_recycler_view" />
 
         <TextView
             android:id="@+id/rv_title"

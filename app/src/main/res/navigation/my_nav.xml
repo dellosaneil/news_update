@@ -11,12 +11,19 @@
         android:label="fragment_saved_article_fragment"
         tools:layout="@layout/fragment_saved" />
     <fragment
-        android:id="@+id/search_fragment"
+        android:id="@+id/news_fragment"
         android:name="com.example.newstracker.bottomNavigation.SearchFragment"
         android:label="fragment_home_fragment"
         tools:layout="@layout/fragment_search" >
+
         <action
             android:id="@+id/searchFragment_addNewCategory"
+            app:destination="@id/userNewsPreference" />
+        <action
+            android:id="@+id/searchPreferences_newsArticles"
+            app:destination="@id/newsArticlesFragment" />
+        <action
+            android:id="@+id/action_news_fragment_to_userNewsPreference"
             app:destination="@id/userNewsPreference" />
     </fragment>
     <fragment
@@ -31,6 +38,11 @@
         tools:layout="@layout/fragment_user_news_preference" >
         <action
             android:id="@+id/addNewCategory_searchFragment"
-            app:destination="@id/search_fragment" />
+            app:destination="@id/news_fragment" />
     </fragment>
+    <fragment
+        android:id="@+id/newsArticlesFragment"
+        android:name="com.example.newstracker.fragments.NewsArticlesFragment"
+        android:label="fragment_news_articles"
+        tools:layout="@layout/fragment_news_articles" />
 </navigation>

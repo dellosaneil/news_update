@@ -1,5 +1,6 @@
 package com.example.newstracker.recyclerView.result
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,8 +15,10 @@ class ResultAdapter : RecyclerView.Adapter<ResultAdapter.MainActivityViewHolder>
 
     private var newsArticles : List<Article>? = null
 
+    private val TAG = "ResultAdapter"
     fun setNewsArticles(newsResponse: List<Article>){
         newsArticles = newsResponse
+        Log.i(TAG, "setNewsArticles: ${newsArticles!!.size}")
         notifyDataSetChanged()
     }
 

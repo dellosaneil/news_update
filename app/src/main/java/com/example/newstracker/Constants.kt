@@ -7,5 +7,14 @@ class Constants {
         const val DATABASE_NAME = "news_tracker_data"
 
 
+        const val ARGUMENT_LABEL = "label"
+        const val ARGUMENT_KEYWORD = "keyword"
+        const val ARGUMENT_CATEGORY = "category"
+        const val ARGUMENT_LANGUAGE = "language"
+        const val ARGUMENT_COUNTRY = "country"
+
+        const val ARGUMENT_BUNDLE = "bundle"
+
+
     }
 }

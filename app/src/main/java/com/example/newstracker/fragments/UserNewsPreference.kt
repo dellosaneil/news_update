@@ -52,11 +52,10 @@ class UserNewsPreference : Fragment() {
     private fun indexNumber(key: String, array: Array<String>) = array.indexOf(key)
 
     private fun retrieveValue() {
-        val preferenceLabel: String
         val preferenceName = label?.editText?.text.toString()
         if (preferenceName.isBlank()) {
             label?.error = resources.getString(R.string.user_add_preference_error)
-        }else{
+        } else {
             label?.isErrorEnabled = false
             val countryName = country?.editText?.text.toString()
             val languageName = language?.editText?.text.toString()
@@ -72,23 +71,22 @@ class UserNewsPreference : Fragment() {
             }
 
             val keywordText = keyword?.editText?.text.toString()
-            preferenceLabel = label?.editText?.text.toString()
             var countryCode = resources.getStringArray(R.array.country_list_values)[countryIndex]
             var languageCode = resources.getStringArray(R.array.language_list_values)[languageIndex]
             var categoryCode = category?.editText?.text.toString()
             countryCode = convertAll("All", countryCode)
             categoryCode = convertAll("Any", categoryCode)
             languageCode = convertAll("Any", languageCode)
+
             saveToRoomDatabase(
-                preferenceLabel,
+                preferenceName,
                 keywordText,
-                categoryCode,
                 countryCode,
-                languageCode
+                languageCode,
+                categoryCode
             )
         }
     }
-
 
 
     //converts all default values to blanks.
@@ -108,13 +106,21 @@ class UserNewsPreference : Fragment() {
         categoryCode: String
     ) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val newPreference  = PreferenceEntity(preferenceLabel, categoryCode, languageCode, countryCode, keywordText)
+            val newPreference = PreferenceEntity(
+                preferenceLabel,
+                categoryCode,
+                countryCode,
+                keywordText,
+                languageCode
+            )
+
+
             val isUpdate = repository.checkLabel(preferenceLabel)
-            if(isUpdate == 0){
+            if (isUpdate == 0) {
                 repository.addNewPreference(newPreference)
                 activity?.supportFragmentManager?.popBackStack()
-            }else{
-                withContext(Main){
+            } else {
+                withContext(Main) {
                     label?.error = resources.getString(R.string.user_add_preference_unique)
                 }
             }
