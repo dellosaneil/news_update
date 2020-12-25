@@ -1,10 +1,10 @@
-package com.example.newstracker.recyclerView
+package com.example.newstracker.recyclerView.result
 
 import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 
-class MainActivityDecorator(private val paddingTop: Int, private val paddingSide : Int) : RecyclerView.ItemDecoration() {
+class ResultDecorator(private val paddingTop: Int, private val paddingSide : Int) : RecyclerView.ItemDecoration() {
     override fun getItemOffsets(
         outRect: Rect,
         view: View,

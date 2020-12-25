@@ -1,4 +1,4 @@
-package com.example.newstracker.viewModel
+package com.example.newstracker.viewModel.result
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

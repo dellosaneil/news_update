@@ -23,5 +23,8 @@
     <string name="user_add_preference_error">Required Field</string>
     <string name="user_add_preference_unique">Label Already Used</string>
 
+    <string name="search_content_image_description">floating_action_button</string>
+    <string name="search_saved_search_preferences">Search Preferences</string>
+
 
 </resources>

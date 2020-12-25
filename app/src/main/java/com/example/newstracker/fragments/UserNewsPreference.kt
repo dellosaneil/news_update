@@ -112,12 +112,20 @@ class UserNewsPreference : Fragment() {
             val isUpdate = repository.checkLabel(preferenceLabel)
             if(isUpdate == 0){
                 repository.addNewPreference(newPreference)
+                activity?.supportFragmentManager?.popBackStack()
             }else{
                 withContext(Main){
                     label?.error = resources.getString(R.string.user_add_preference_unique)
                 }
             }
         }
+    }
+
+    private val TAG = "UserNewsPreference"
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.i(TAG, "onDestroy: ")
     }
 
 

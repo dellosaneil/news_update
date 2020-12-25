@@ -1,4 +1,4 @@
-package com.example.newstracker.recyclerView
+package com.example.newstracker.recyclerView.result
 
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +10,7 @@ import com.example.newstracker.R
 import com.example.newstracker.retrofit.dataclass.Article
 
 
-class MainActivityAdapter : RecyclerView.Adapter<MainActivityAdapter.MainActivityViewHolder>() {
+class ResultAdapter : RecyclerView.Adapter<ResultAdapter.MainActivityViewHolder>() {
 
     private var newsArticles : List<Article>? = null
 
@@ -21,7 +21,7 @@ class MainActivityAdapter : RecyclerView.Adapter<MainActivityAdapter.MainActivit
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainActivityViewHolder {
-        return MainActivityViewHolder(LayoutInflater.from(parent.context). inflate(R.layout.main_activity_list_layout, parent, false))
+        return MainActivityViewHolder(LayoutInflater.from(parent.context). inflate(R.layout.result_list_layout, parent, false))
     }
 
     override fun onBindViewHolder(holder: MainActivityViewHolder, position: Int) {

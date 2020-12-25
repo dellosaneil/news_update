@@ -11,7 +11,7 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.internal.synchronized
 
 
-@Database(entities = [PreferenceEntity::class], version = 1)
+@Database(entities = [PreferenceEntity::class], version = 1, exportSchema = false)
 abstract class NewsTrackerDatabase : RoomDatabase() {
     abstract fun preferenceDao(): PreferenceDao
 

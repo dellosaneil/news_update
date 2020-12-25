@@ -1,6 +1,7 @@
 package com.example.newstracker.repository
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.example.newstracker.room.dao.PreferenceDao
 import com.example.newstracker.room.entity.PreferenceEntity
 
@@ -14,6 +15,5 @@ class DatabaseRepository(private val preferenceDao: PreferenceDao) {
     suspend fun deletePreference(label: String) = preferenceDao.deletePref(label)
 
     suspend fun checkLabel(label: String) = preferenceDao.checkLabel(label)
-
-
+    
 }
