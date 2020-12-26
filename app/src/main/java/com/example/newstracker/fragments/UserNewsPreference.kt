@@ -7,9 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.Navigation
 import com.example.newstracker.R
 import com.example.newstracker.repository.DatabaseRepository
 import com.example.newstracker.room.NewsTrackerDatabase
@@ -27,16 +27,13 @@ class UserNewsPreference : Fragment() {
     private var country: TextInputLayout? = null
     private var label: TextInputLayout? = null
     private var keyword: TextInputLayout? = null
-
     private lateinit var repository: DatabaseRepository
-
-    //country?.editText?.text RETRIEVE DATA
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_user_news_preference, container, false)
+    ): View {
+        val view  = inflater.inflate(R.layout.fragment_user_news_preference, container, false)
         val dao = NewsTrackerDatabase.getDatabase(view.context).preferenceDao()
         repository = DatabaseRepository(dao)
         initializeCategoryDropDown(view)
@@ -45,13 +42,13 @@ class UserNewsPreference : Fragment() {
         label = view?.findViewById(R.id.news_label)
         keyword = view?.findViewById(R.id.news_keyword)
         val trialButton = view.findViewById<MaterialButton>(R.id.news_saveButton)
-        trialButton.setOnClickListener { retrieveValue() }
+        trialButton.setOnClickListener { retrieveValue(view) }
         return view
     }
 
     private fun indexNumber(key: String, array: Array<String>) = array.indexOf(key)
 
-    private fun retrieveValue() {
+    private fun retrieveValue(view: View) {
         val preferenceName = label?.editText?.text.toString()
         if (preferenceName.isBlank()) {
             label?.error = resources.getString(R.string.user_add_preference_error)
@@ -83,7 +80,8 @@ class UserNewsPreference : Fragment() {
                 keywordText,
                 countryCode,
                 languageCode,
-                categoryCode
+                categoryCode,
+                view
             )
         }
     }
@@ -103,7 +101,8 @@ class UserNewsPreference : Fragment() {
         keywordText: String,
         countryCode: String,
         languageCode: String,
-        categoryCode: String
+        categoryCode: String,
+        view: View
     ) {
         lifecycleScope.launch(Dispatchers.IO) {
             val newPreference = PreferenceEntity(
@@ -114,11 +113,15 @@ class UserNewsPreference : Fragment() {
                 languageCode
             )
 
-
+            Log.i(TAG, "saveToRoomDatabase: ")
             val isUpdate = repository.checkLabel(preferenceLabel)
+            Log.i(TAG, "saveToRoomDatabase: $isUpdate")
+
             if (isUpdate == 0) {
+                Log.i(TAG, "saveToRoomDatabase:Update ")
                 repository.addNewPreference(newPreference)
-                activity?.supportFragmentManager?.popBackStack()
+                Navigation.findNavController(view)
+                    .navigate(R.id.addNewCategory_searchFragment)
             } else {
                 withContext(Main) {
                     label?.error = resources.getString(R.string.user_add_preference_unique)
@@ -136,6 +139,7 @@ class UserNewsPreference : Fragment() {
 
 
     private fun initializeCountryDropDown(view: View?) {
+        Log.i(TAG, "initializeCountryDropDown: ")
         val items = resources.getStringArray(R.array.country_list_keys)
         country = view?.findViewById(R.id.news_country)
         val adapter = ArrayAdapter(requireContext(), R.layout.list_item, items)
@@ -145,6 +149,7 @@ class UserNewsPreference : Fragment() {
     }
 
     private fun initializeLanguageDropDown(view: View?) {
+        Log.i(TAG, "initializeLanguageDropDown: ")
         val items = resources.getStringArray(R.array.language_list_keys)
         language = view?.findViewById(R.id.news_language)
         val adapter = ArrayAdapter(requireContext(), R.layout.list_item, items)
@@ -154,6 +159,7 @@ class UserNewsPreference : Fragment() {
     }
 
     private fun initializeCategoryDropDown(view: View?) {
+        Log.i(TAG, "initializeCategoryDropDown: ")
         val items = resources.getStringArray(R.array.category_list)
         category = view?.findViewById(R.id.news_category)
         val adapter = ArrayAdapter(requireContext(), R.layout.list_item, items)

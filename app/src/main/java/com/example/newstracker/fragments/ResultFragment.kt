@@ -2,13 +2,12 @@ package com.example.newstracker.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.newstracker.Constants.Companion.ARGUMENT_BUNDLE
@@ -18,37 +17,23 @@ import com.example.newstracker.repository.RetrofitRepository
 import com.example.newstracker.room.entity.PreferenceEntity
 import com.example.newstracker.viewModel.result.ResultVM
 import com.example.newstracker.viewModel.result.ResultVMFactory
-import kotlinx.coroutines.Dispatchers.Default
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlin.math.log
 
-class NewsArticlesFragment : Fragment() {
+class ResultFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var repository: RetrofitRepository
     private lateinit var viewModel: ResultVM
     private lateinit var myAdapter: ResultAdapter
+    private lateinit var progressBar : ProgressBar
 
-    private val TAG = "NewsArticlesFragment"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_news_articles, container, false)
-
         val prefs = arguments?.getStringArray(ARGUMENT_BUNDLE)
-        if (prefs != null) {
-            for ((i, item) in prefs.withIndex()) {
-                println("$i : $item")
-            }
-        }
-
-
-
+        progressBar = view.findViewById(R.id.newsArticles_progressBar)
         recyclerView = view.findViewById(R.id.recyclerView_newsArticles)
         initializeRecyclerView(prefs, view.context)
         return view
@@ -76,11 +61,18 @@ class NewsArticlesFragment : Fragment() {
             layoutManager = LinearLayoutManager(context)
         }
         viewModel.getArticles().observe(requireActivity(), {
-            it.body()?.articles?.let { it1 ->
+            it.body()?.articles?.let { articles ->
                 myAdapter.setNewsArticles(
-                    it1
+                    articles
                 )
             }
         })
+        viewModel.checkFinished().observe(requireActivity(), {
+            if(it){
+                progressBar.visibility = View.INVISIBLE
+                recyclerView.visibility = View.VISIBLE
+            }
+        })
+
     }
 }

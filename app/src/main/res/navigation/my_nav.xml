@@ -42,7 +42,7 @@
     </fragment>
     <fragment
         android:id="@+id/newsArticlesFragment"
-        android:name="com.example.newstracker.fragments.NewsArticlesFragment"
+        android:name="com.example.newstracker.fragments.ResultFragment"
         android:label="fragment_news_articles"
         tools:layout="@layout/fragment_news_articles" />
 </navigation>

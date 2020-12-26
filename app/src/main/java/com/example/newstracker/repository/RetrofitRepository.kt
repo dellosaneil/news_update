@@ -9,5 +9,5 @@ class RetrofitRepository {
                                    country : String,
                                    keyword : String,
                                    language : String
-    ): Response<NewsResponse> = RetrofitInstance.api.getBreakingNews(category, country, keyword, language)
+    ): Response<NewsResponse> = RetrofitInstance.api.getBreakingNews(category, country, keyword, 100, language)
 }
