@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,6 +15,7 @@ import com.example.newstracker.Constants.Companion.ARGUMENT_BUNDLE
 import com.example.newstracker.R
 import com.example.newstracker.recyclerView.result.ResultAdapter
 import com.example.newstracker.repository.RetrofitRepository
+import com.example.newstracker.retrofit.dataclass.Article
 import com.example.newstracker.room.entity.PreferenceEntity
 import com.example.newstracker.viewModel.result.ResultVM
 import com.example.newstracker.viewModel.result.ResultVMFactory
@@ -61,11 +63,17 @@ class ResultFragment : Fragment() {
             layoutManager = LinearLayoutManager(context)
         }
         viewModel.getArticles().observe(requireActivity(), {
-            it.body()?.articles?.let { articles ->
-                myAdapter.setNewsArticles(
-                    articles
-                )
+            if(it.isSuccessful){
+                it.body()?.articles?.let { articles ->
+                    val temp = filterArticles(articles)
+                    myAdapter.setNewsArticles(
+                        temp
+                    )
+                }
+            }else{
+                Toast.makeText(context, resources.getString(R.string.network_problem), Toast.LENGTH_LONG).show()
             }
+
         })
         viewModel.checkFinished().observe(requireActivity(), {
             if(it){
@@ -75,4 +83,19 @@ class ResultFragment : Fragment() {
         })
 
     }
+
+    private fun filterArticles(articles: List<Article>) : List<Article>{
+        val tempSet = mutableSetOf<String>()
+        val filteredArticles = mutableListOf<Article>()
+        for (article in articles){
+            if(!tempSet.contains(article.title)){
+                tempSet.add(article.title)
+                filteredArticles.add(article)
+            }
+        }
+        return filteredArticles
+    }
+
+
+
 }

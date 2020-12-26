@@ -18,9 +18,8 @@ class ResultVM(private val retrofitRepository: RetrofitRepository) : ViewModel()
 
     private lateinit var preferences: PreferenceEntity
     private var finished = MutableLiveData(false)
+
     fun checkFinished() = finished
-
-
     fun placePreferences(pref: PreferenceEntity) {
         preferences = pref
     }
