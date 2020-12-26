@@ -1,17 +1,19 @@
 package com.example.newstracker.fragments
 
-import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.Toast
-import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.newstracker.Constants.Companion.ARGUMENT_BUNDLE
+import com.example.newstracker.FragmentLifecycleLogging
 import com.example.newstracker.R
 import com.example.newstracker.recyclerView.result.ResultAdapter
 import com.example.newstracker.repository.RetrofitRepository
@@ -19,14 +21,16 @@ import com.example.newstracker.retrofit.dataclass.Article
 import com.example.newstracker.room.entity.PreferenceEntity
 import com.example.newstracker.viewModel.result.ResultVM
 import com.example.newstracker.viewModel.result.ResultVMFactory
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
-class ResultFragment : Fragment() {
+class ResultFragment : FragmentLifecycleLogging() {
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var repository: RetrofitRepository
-    private lateinit var viewModel: ResultVM
+    private val viewModel: ResultVM by activityViewModels()
     private lateinit var myAdapter: ResultAdapter
-    private lateinit var progressBar : ProgressBar
+    private lateinit var progressBar: ProgressBar
 
 
     override fun onCreateView(
@@ -37,15 +41,13 @@ class ResultFragment : Fragment() {
         val prefs = arguments?.getStringArray(ARGUMENT_BUNDLE)
         progressBar = view.findViewById(R.id.newsArticles_progressBar)
         recyclerView = view.findViewById(R.id.recyclerView_newsArticles)
-        initializeRecyclerView(prefs, view.context)
+        initializeRecyclerView(prefs)
         return view
     }
 
-    private fun initializeRecyclerView(prefs: Array<String>?, context: Context) {
-        repository = RetrofitRepository()
+    private fun initializeRecyclerView(prefs: Array<String>?) {
+        Log.i(TAG, "initializeRecyclerView: ")
         myAdapter = ResultAdapter()
-        val viewModelFactory = ResultVMFactory(repository)
-        viewModel = ViewModelProvider(requireActivity(), viewModelFactory).get(ResultVM::class.java)
         if (prefs != null) {
             viewModel.placePreferences(
                 PreferenceEntity(
@@ -58,37 +60,52 @@ class ResultFragment : Fragment() {
             )
         }
         viewModel.retrieveArticles()
+
         recyclerView.apply {
             adapter = myAdapter
-            layoutManager = LinearLayoutManager(context)
+            layoutManager = LinearLayoutManager(requireActivity())
         }
-        viewModel.getArticles().observe(requireActivity(), {
-            if(it.isSuccessful){
+
+        viewModel.getArticles().observe(viewLifecycleOwner, {
+            if (it?.isSuccessful == true) {
                 it.body()?.articles?.let { articles ->
                     val temp = filterArticles(articles)
                     myAdapter.setNewsArticles(
                         temp
                     )
                 }
-            }else{
-                Toast.makeText(context, resources.getString(R.string.network_problem), Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    resources.getString(R.string.network_problem),
+                    Toast.LENGTH_LONG
+                ).show()
             }
 
         })
+
         viewModel.checkFinished().observe(requireActivity(), {
-            if(it){
+            if (it) {
                 progressBar.visibility = View.INVISIBLE
                 recyclerView.visibility = View.VISIBLE
+            } else {
+                progressBar.visibility = View.VISIBLE
+                recyclerView.visibility = View.INVISIBLE
             }
         })
+
 
     }
 
-    private fun filterArticles(articles: List<Article>) : List<Article>{
+    private val TAG = "ResultFragment"
+
+    //    Filter data to lessen probability of having the same article
+    private fun filterArticles(articles: List<Article>): List<Article> {
+        Log.i(TAG, "filterArticles: ")
         val tempSet = mutableSetOf<String>()
         val filteredArticles = mutableListOf<Article>()
-        for (article in articles){
-            if(!tempSet.contains(article.title)){
+        for (article in articles) {
+            if (!tempSet.contains(article.title)) {
                 tempSet.add(article.title)
                 filteredArticles.add(article)
             }
@@ -96,6 +113,10 @@ class ResultFragment : Fragment() {
         return filteredArticles
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.clearAllData()
+    }
 
 
 }
