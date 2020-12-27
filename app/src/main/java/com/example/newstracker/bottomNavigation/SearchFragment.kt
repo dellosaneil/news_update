@@ -1,7 +1,6 @@
 package com.example.newstracker.bottomNavigation
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,11 +12,6 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.newstracker.Constants.Companion.ARGUMENT_BUNDLE
-import com.example.newstracker.Constants.Companion.ARGUMENT_CATEGORY
-import com.example.newstracker.Constants.Companion.ARGUMENT_COUNTRY
-import com.example.newstracker.Constants.Companion.ARGUMENT_KEYWORD
-import com.example.newstracker.Constants.Companion.ARGUMENT_LABEL
-import com.example.newstracker.Constants.Companion.ARGUMENT_LANGUAGE
 import com.example.newstracker.R
 import com.example.newstracker.recyclerView.preference.SearchPreferenceAdapter
 import com.example.newstracker.recyclerView.preference.SearchPreferenceDecorator
@@ -70,9 +64,7 @@ class SearchFragment : Fragment(), SearchPreferenceAdapter.OnItemClickedListener
     override fun onItemClicked(pref: PreferenceEntity) {
         val list = arrayOf(pref.label, pref.category,  pref.country, pref.keyword , pref.language)
         val bundle = bundleOf(ARGUMENT_BUNDLE to list)
-
         anotherView.findNavController().navigate(R.id.searchPreferences_newsArticles, bundle)
-//        Navigation.findNavController(anotherView).navigate(R.id.searchPreferences_newsArticles, bundle)
     }
 
 }

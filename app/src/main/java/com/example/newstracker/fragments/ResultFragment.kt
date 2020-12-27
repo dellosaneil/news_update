@@ -8,22 +8,18 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.newstracker.Constants.Companion.ARGUMENT_BUNDLE
 import com.example.newstracker.FragmentLifecycleLogging
 import com.example.newstracker.R
 import com.example.newstracker.recyclerView.result.ResultAdapter
-import com.example.newstracker.repository.RetrofitRepository
 import com.example.newstracker.retrofit.dataclass.Article
+import com.example.newstracker.retrofit.dataclass.NewsResponse
 import com.example.newstracker.room.entity.PreferenceEntity
 import com.example.newstracker.viewModel.result.ResultVM
-import com.example.newstracker.viewModel.result.ResultVMFactory
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import retrofit2.Response
 
 class ResultFragment : FragmentLifecycleLogging() {
 
@@ -31,6 +27,7 @@ class ResultFragment : FragmentLifecycleLogging() {
     private val viewModel: ResultVM by activityViewModels()
     private lateinit var myAdapter: ResultAdapter
     private lateinit var progressBar: ProgressBar
+    private val TAG = "ResultFragment"
 
 
     override fun onCreateView(
@@ -60,44 +57,47 @@ class ResultFragment : FragmentLifecycleLogging() {
             )
         }
         viewModel.retrieveArticles()
-
         recyclerView.apply {
             adapter = myAdapter
             layoutManager = LinearLayoutManager(requireActivity())
         }
-
-        viewModel.getArticles().observe(viewLifecycleOwner, {
-            if (it?.isSuccessful == true) {
-                it.body()?.articles?.let { articles ->
-                    val temp = filterArticles(articles)
-                    myAdapter.setNewsArticles(
-                        temp
-                    )
-                }
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    resources.getString(R.string.network_problem),
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-
-        })
-
-        viewModel.checkFinished().observe(requireActivity(), {
-            if (it) {
-                progressBar.visibility = View.INVISIBLE
-                recyclerView.visibility = View.VISIBLE
-            } else {
-                progressBar.visibility = View.VISIBLE
-                recyclerView.visibility = View.INVISIBLE
-            }
-        })
-
-
+        viewModel.getArticles()?.observe(viewLifecycleOwner, articleObserver)
+        viewModel.checkFinished()?.observe(viewLifecycleOwner, visibilityObserver)
     }
 
-    private val TAG = "ResultFragment"
+    private val visibilityObserver = Observer<Boolean> { changeVisibility(it) }
+
+    private fun changeVisibility(isFinished: Boolean?) {
+        Log.i(TAG, "changeVisibility: ")
+        if (isFinished == true) {
+            progressBar.visibility = View.INVISIBLE
+            recyclerView.visibility = View.VISIBLE
+        } else {
+            progressBar.visibility = View.VISIBLE
+            recyclerView.visibility = View.INVISIBLE
+        }
+    }
+
+    private var articleObserver =  Observer<Response<NewsResponse>?> { updateRecyclerView(it) }
+
+    private fun updateRecyclerView(articles: Response<NewsResponse>?) {
+        Log.i(TAG, "updateRecyclerView: ")
+        if (articles?.isSuccessful == true) {
+            articles.body()?.articles?.let { result ->
+                val temp = filterArticles(result)
+                myAdapter.setNewsArticles(
+                    temp
+                )
+            }
+        } else {
+            Log.i(TAG, "Error Body: ${articles?.errorBody().toString()}")
+            Toast.makeText(
+                requireContext(),
+                resources.getString(R.string.network_problem),
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
 
     //    Filter data to lessen probability of having the same article
     private fun filterArticles(articles: List<Article>): List<Article> {
