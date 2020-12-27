@@ -1,13 +1,13 @@
 package com.example.newstracker.bottomNavigation
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.newstracker.FragmentLifecycleLogging
 import com.example.newstracker.R
 
-class SavedArticlesFragment : Fragment() {
+class SavedArticlesFragment : FragmentLifecycleLogging() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

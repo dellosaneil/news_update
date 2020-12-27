@@ -1,7 +1,6 @@
 package com.example.newstracker
 
 import android.os.Bundle
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -24,8 +23,6 @@ class MainActivity : AppCompatActivity() {
         val repository = RetrofitRepository()
         val viewModelFactory = ResultVMFactory(repository)
         model =  ViewModelProvider(this, viewModelFactory).get(ResultVM::class.java)
-
-
     }
 
     // function to connect Navigation Component to Bottom Navigation View

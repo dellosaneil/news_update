@@ -5,9 +5,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.newstracker.FragmentLifecycleLogging
 import com.example.newstracker.R
 
-class SettingsFragment : Fragment() {
+class SettingsFragment : FragmentLifecycleLogging() {
 
 
     override fun onCreateView(

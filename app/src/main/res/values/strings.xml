@@ -27,6 +27,7 @@
     <string name="search_saved_search_preferences">Search Preferences</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="network_problem">Something went wrong</string>
+    <string name="content_description">Image for info</string>
 
 
 

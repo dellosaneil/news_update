@@ -1,7 +1,6 @@
 package com.example.newstracker.repository
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.example.newstracker.room.dao.PreferenceDao
 import com.example.newstracker.room.entity.PreferenceEntity
 

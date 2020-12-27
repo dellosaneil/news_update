@@ -5,16 +5,16 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.newstracker.Constants.Companion.ARGUMENT_BUNDLE
 import com.example.newstracker.FragmentLifecycleLogging
 import com.example.newstracker.R
+import com.example.newstracker.databinding.FragmentNewsArticlesBinding
 import com.example.newstracker.recyclerView.result.ResultAdapter
+import com.example.newstracker.recyclerView.result.ResultDecorator
 import com.example.newstracker.retrofit.dataclass.Article
 import com.example.newstracker.retrofit.dataclass.NewsResponse
 import com.example.newstracker.room.entity.PreferenceEntity
@@ -23,63 +23,43 @@ import retrofit2.Response
 
 class ResultFragment : FragmentLifecycleLogging() {
 
-    private lateinit var recyclerView: RecyclerView
+
+    private var _binding: FragmentNewsArticlesBinding? = null
+    private val binding get() = _binding!!
+
     private val viewModel: ResultVM by activityViewModels()
     private lateinit var myAdapter: ResultAdapter
-    private lateinit var progressBar: ProgressBar
+
     private val TAG = "ResultFragment"
 
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_news_articles, container, false)
+    ): View {
+        _binding = FragmentNewsArticlesBinding.inflate(inflater, container, false)
+        val view = binding.root
         val prefs = arguments?.getStringArray(ARGUMENT_BUNDLE)
-        progressBar = view.findViewById(R.id.newsArticles_progressBar)
-        recyclerView = view.findViewById(R.id.recyclerView_newsArticles)
-        initializeRecyclerView(prefs)
+        searchArticlesWithPreference(prefs)
+        initializeRecyclerView()
         return view
     }
 
-    private fun initializeRecyclerView(prefs: Array<String>?) {
-        Log.i(TAG, "initializeRecyclerView: ")
-        myAdapter = ResultAdapter()
-        if (prefs != null) {
-            viewModel.placePreferences(
-                PreferenceEntity(
-                    prefs[0],
-                    prefs[1],
-                    prefs[2],
-                    prefs[3],
-                    prefs[4]
-                )
-            )
-        }
-        viewModel.retrieveArticles()
-        recyclerView.apply {
-            adapter = myAdapter
-            layoutManager = LinearLayoutManager(requireActivity())
-        }
-        viewModel.getArticles()?.observe(viewLifecycleOwner, articleObserver)
-        viewModel.checkFinished()?.observe(viewLifecycleOwner, visibilityObserver)
-    }
-
+    //    Observer Variables
     private val visibilityObserver = Observer<Boolean> { changeVisibility(it) }
+    private var articleObserver = Observer<Response<NewsResponse>?> { updateRecyclerView(it) }
 
+    //    Observer functions
     private fun changeVisibility(isFinished: Boolean?) {
         Log.i(TAG, "changeVisibility: ")
         if (isFinished == true) {
-            progressBar.visibility = View.INVISIBLE
-            recyclerView.visibility = View.VISIBLE
+            binding.newsArticlesProgressBar.visibility = View.INVISIBLE
+            binding.newsArticleRecyclerView.visibility = View.VISIBLE
         } else {
-            progressBar.visibility = View.VISIBLE
-            recyclerView.visibility = View.INVISIBLE
+            binding.newsArticlesProgressBar.visibility = View.VISIBLE
+            binding.newsArticleRecyclerView.visibility = View.INVISIBLE
         }
     }
-
-    private var articleObserver =  Observer<Response<NewsResponse>?> { updateRecyclerView(it) }
-
     private fun updateRecyclerView(articles: Response<NewsResponse>?) {
         Log.i(TAG, "updateRecyclerView: ")
         if (articles?.isSuccessful == true) {
@@ -90,13 +70,41 @@ class ResultFragment : FragmentLifecycleLogging() {
                 )
             }
         } else {
-            Log.i(TAG, "Error Body: ${articles?.errorBody().toString()}")
+            Log.i(TAG, "Error Body: ${articles?.message()}")
             Toast.makeText(
                 requireContext(),
                 resources.getString(R.string.network_problem),
                 Toast.LENGTH_LONG
             ).show()
         }
+    }
+
+    private fun initializeRecyclerView() {
+        Log.i(TAG, "initializeRecyclerView: ")
+        myAdapter = ResultAdapter()
+        binding.newsArticleRecyclerView.apply {
+            val decorator = ResultDecorator(10, 5)
+            addItemDecoration(decorator)
+            adapter = myAdapter
+            layoutManager = LinearLayoutManager(requireActivity())
+        }
+        observeData()
+    }
+    
+    //   Put data into view model
+    private fun searchArticlesWithPreference(prefs: Array<String>?){
+        Log.i(TAG, "searchArticlesWithPreference: ")
+        if (prefs != null) {
+            viewModel.placePreferences(PreferenceEntity(prefs[0], prefs[1], prefs[2], prefs[3], prefs[4]))
+        }
+        viewModel.retrieveArticles()
+    }
+
+    //    Assign observer to LiveData
+    private fun observeData() {
+        Log.i(TAG, "observeData: ")
+        viewModel.getArticles()?.observe(viewLifecycleOwner, articleObserver)
+        viewModel.checkFinished()?.observe(viewLifecycleOwner, visibilityObserver)
     }
 
     //    Filter data to lessen probability of having the same article
@@ -118,5 +126,8 @@ class ResultFragment : FragmentLifecycleLogging() {
         viewModel.clearAllData()
     }
 
-
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }
