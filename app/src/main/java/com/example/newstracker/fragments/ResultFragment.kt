@@ -38,11 +38,10 @@ class ResultFragment : FragmentLifecycleLogging() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentNewsArticlesBinding.inflate(inflater, container, false)
-        val view = binding.root
         val prefs = arguments?.getStringArray(ARGUMENT_BUNDLE)
         searchArticlesWithPreference(prefs)
         initializeRecyclerView()
-        return view
+        return binding.root
     }
 
     //    Observer Variables

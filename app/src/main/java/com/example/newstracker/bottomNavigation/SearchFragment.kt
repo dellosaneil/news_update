@@ -11,9 +11,11 @@ import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.newstracker.Constants.Companion.ARGUMENT_BUNDLE
+import com.example.newstracker.Constants.Companion.SEARCH_DETAILS_DIALOG
 import com.example.newstracker.FragmentLifecycleLogging
 import com.example.newstracker.R
 import com.example.newstracker.databinding.FragmentSearchBinding
+import com.example.newstracker.dialog.SearchPreferenceDialog
 import com.example.newstracker.recyclerView.preference.SearchPreferenceAdapter
 import com.example.newstracker.recyclerView.preference.SearchPreferenceDecorator
 import com.example.newstracker.room.entity.PreferenceEntity
@@ -62,11 +64,16 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
         }
     }
 
-    override fun onItemClicked(pref: PreferenceEntity) {
+    override fun searchBreakingNews(pref: PreferenceEntity) {
         Log.i(TAG, "onItemClicked: ")
         val list = arrayOf(pref.label, pref.category,  pref.country, pref.keyword , pref.language)
         val bundle = bundleOf(ARGUMENT_BUNDLE to list)
         anotherView.findNavController().navigate(R.id.searchPreferences_newsArticles, bundle)
+    }
+
+    override fun preferenceDetails(pref: PreferenceEntity) {
+        val dialog = SearchPreferenceDialog(pref)
+        dialog.show(parentFragmentManager, SEARCH_DETAILS_DIALOG)
     }
 
     override fun onDestroyView() {

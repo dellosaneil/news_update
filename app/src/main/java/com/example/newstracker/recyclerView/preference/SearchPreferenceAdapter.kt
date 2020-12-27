@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.newstracker.R
 import com.example.newstracker.databinding.SearchPreferenceListLayoutBinding
 import com.example.newstracker.room.entity.PreferenceEntity
 
@@ -20,7 +21,7 @@ class SearchPreferenceAdapter(private val listener: OnItemClickedListener) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchPreferenceViewHolder {
         val binding = SearchPreferenceListLayoutBinding.inflate(
             LayoutInflater.from(parent.context),
-            parent,false
+            parent, false
         )
         return SearchPreferenceViewHolder(binding)
     }
@@ -41,19 +42,30 @@ class SearchPreferenceAdapter(private val listener: OnItemClickedListener) :
 
         init {
             binding.searchPreferenceSearchBreakingNews.setOnClickListener(this)
+            binding.searchPreferenceDetails.setOnClickListener(this)
         }
+
 
         fun bind(prefs: PreferenceEntity) {
             binding.searchPreferenceLabel.text = prefs.label
         }
 
         override fun onClick(v: View?) {
-            searchPreferences?.get(adapterPosition)?.let { listener.onItemClicked(it) }
+            when (v?.id) {
+                R.id.searchPreference_searchBreakingNews -> searchPreferences?.get(adapterPosition)
+                    ?.let { listener.searchBreakingNews(it) }
+
+                R.id.searchPreference_details -> searchPreferences?.get(adapterPosition)
+                    ?.let { listener.preferenceDetails(it) }
+            }
+
+
         }
     }
 
     interface OnItemClickedListener {
-        fun onItemClicked(pref: PreferenceEntity)
+        fun searchBreakingNews(pref: PreferenceEntity)
+        fun preferenceDetails(pref: PreferenceEntity)
     }
 
 }

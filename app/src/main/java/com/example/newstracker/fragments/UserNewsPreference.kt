@@ -17,11 +17,10 @@ import com.example.newstracker.room.NewsTrackerDatabase
 import com.example.newstracker.room.entity.PreferenceEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@InternalCoroutinesApi
+
 class UserNewsPreference : FragmentLifecycleLogging() {
 
     private lateinit var repository: DatabaseRepository
@@ -87,6 +86,8 @@ class UserNewsPreference : FragmentLifecycleLogging() {
             )
         }
     }
+
+
 
 
     //converts all default values to blanks.

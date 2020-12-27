@@ -12,6 +12,8 @@ class Constants {
 
         const val ARGUMENT_BUNDLE = "bundle"
 
+        const val SEARCH_DETAILS_DIALOG = "details"
+
 
     }
 }

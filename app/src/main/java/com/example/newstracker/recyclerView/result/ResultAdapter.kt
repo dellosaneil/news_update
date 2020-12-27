@@ -25,24 +25,17 @@ class ResultAdapter : RecyclerView.Adapter<ResultAdapter.ResultViewHolder>() {
             LayoutInflater.from(parent.context),
             parent, false
         )
-
         return ResultViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ResultViewHolder, position: Int) {
         val article = newsArticles?.get(position)
-        if (article != null) {
-            holder.bind(article)
+        article?.let{
+            holder.bind(it)
         }
     }
 
-    override fun getItemCount(): Int {
-        if (newsArticles == null) {
-            return 0
-        }
-        return newsArticles!!.size
-    }
-
+    override fun getItemCount() = newsArticles?.size ?:0
 
     class ResultViewHolder(private val binding: ResultListLayoutBinding) :
         RecyclerView.ViewHolder(binding.root) {

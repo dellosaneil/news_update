@@ -28,7 +28,11 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="network_problem">Something went wrong</string>
     <string name="content_description">Image for info</string>
-
+    <string name="dialog_preference_okay">Close</string>
+    <string name="dialog_preference_keyword"><b>Keyword: </b>%1$s</string>
+    <string name="dialog_preference_category"><b>Category: </b>%1$s</string>
+    <string name="dialog_preference_country"><b>Country: </b>%1$s</string>
+    <string name="dialog_preference_language"><b>Language: </b>%1$s</string>
 
 
 </resources>
