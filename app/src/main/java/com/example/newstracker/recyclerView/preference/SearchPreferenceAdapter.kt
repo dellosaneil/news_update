@@ -8,6 +8,7 @@ import com.example.newstracker.R
 import com.example.newstracker.databinding.SearchPreferenceListLayoutBinding
 import com.example.newstracker.room.entity.PreferenceEntity
 
+
 class SearchPreferenceAdapter(private val listener: OnItemClickedListener) :
     RecyclerView.Adapter<SearchPreferenceAdapter.SearchPreferenceViewHolder>() {
 
@@ -40,6 +41,8 @@ class SearchPreferenceAdapter(private val listener: OnItemClickedListener) :
         RecyclerView.ViewHolder(binding.root),
         View.OnClickListener {
 
+
+
         init {
             binding.searchPreferenceSearchBreakingNews.setOnClickListener(this)
             binding.searchPreferenceDetails.setOnClickListener(this)
@@ -58,10 +61,9 @@ class SearchPreferenceAdapter(private val listener: OnItemClickedListener) :
                 R.id.searchPreference_details -> searchPreferences?.get(adapterPosition)
                     ?.let { listener.preferenceDetails(it) }
             }
-
-
         }
     }
+
 
     interface OnItemClickedListener {
         fun searchBreakingNews(pref: PreferenceEntity)

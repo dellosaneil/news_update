@@ -14,6 +14,9 @@ class Constants {
 
         const val SEARCH_DETAILS_DIALOG = "details"
 
+        const val SWIPE_DISTANCE_THRESHOLD = 100
+        const val SWIPE_VELOCITY_THRESHOLD = 100
+
 
     }
 }

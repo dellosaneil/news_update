@@ -21,4 +21,6 @@ class SearchPreferenceVM(application: Application) : AndroidViewModel(applicatio
 
     fun retrieveAllPreference() = allPreferences
 
+    suspend fun deletePreference(label : String) = repository.deletePreference(label)
+
 }

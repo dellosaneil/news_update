@@ -7,9 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.newstracker.Constants.Companion.ARGUMENT_BUNDLE
 import com.example.newstracker.Constants.Companion.SEARCH_DETAILS_DIALOG
 import com.example.newstracker.FragmentLifecycleLogging
@@ -20,6 +23,10 @@ import com.example.newstracker.recyclerView.preference.SearchPreferenceAdapter
 import com.example.newstracker.recyclerView.preference.SearchPreferenceDecorator
 import com.example.newstracker.room.entity.PreferenceEntity
 import com.example.newstracker.viewModel.searchPreference.SearchPreferenceVM
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnItemClickedListener {
 
@@ -28,7 +35,7 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
 
     private lateinit var searchPreferenceVM: SearchPreferenceVM
     private lateinit var myAdapter: SearchPreferenceAdapter
-    private lateinit var anotherView : View
+    private lateinit var anotherView: View
 
     private val TAG = "SearchFragment"
 
@@ -45,6 +52,10 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
             Navigation.findNavController(anotherView)
                 .navigate(R.id.searchFragment_addNewCategory)
         }
+
+        val itemTouchHelper = ItemTouchHelper(itemSwipeListener)
+        itemTouchHelper.attachToRecyclerView(binding.searchFragmentRecyclerView)
+
         return anotherView
     }
 
@@ -66,7 +77,7 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
 
     override fun searchBreakingNews(pref: PreferenceEntity) {
         Log.i(TAG, "onItemClicked: ")
-        val list = arrayOf(pref.label, pref.category,  pref.country, pref.keyword , pref.language)
+        val list = arrayOf(pref.label, pref.category, pref.country, pref.keyword, pref.language)
         val bundle = bundleOf(ARGUMENT_BUNDLE to list)
         anotherView.findNavController().navigate(R.id.searchPreferences_newsArticles, bundle)
     }
@@ -82,6 +93,27 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
     }
 
 
+    private val itemSwipeListener =
+        object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return true
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                lifecycleScope.launch(IO) {
+                    val deleteLabel = searchPreferenceVM.retrieveAllPreference().value?.get(viewHolder.adapterPosition)?.label
+                    deleteLabel?.let { searchPreferenceVM.deletePreference(it) }
+                    withContext(Main){
+                        myAdapter.notifyDataSetChanged()
+                    }
+
+                }
+            }
+        }
 }
 
 
