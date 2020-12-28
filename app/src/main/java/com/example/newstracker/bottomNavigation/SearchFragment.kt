@@ -24,8 +24,12 @@ import com.example.newstracker.recyclerView.preference.SearchPreferenceDecorator
 import com.example.newstracker.room.entity.PreferenceEntity
 import com.example.newstracker.viewModel.searchPreference.SearchPreferenceVM
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnItemClickedListener, SearchPreferenceSwipeListener.DeleteSwipe {
 
@@ -116,9 +120,8 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
     override fun swipePreferenceIndex(index: Int) {
         val label = searchPreferenceVM.retrieveAllPreference().value?.get(index)?.label
         checkDelete(label)
+        myAdapter.notifyDataSetChanged()
     }
-
-
 }
 
 
