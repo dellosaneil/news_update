@@ -12,23 +12,22 @@ import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.newstracker.Constants.Companion.ARGUMENT_BUNDLE
 import com.example.newstracker.Constants.Companion.SEARCH_DETAILS_DIALOG
 import com.example.newstracker.FragmentLifecycleLogging
 import com.example.newstracker.R
+import com.example.newstracker.callbackListener.SearchPreferenceSwipeListener
 import com.example.newstracker.databinding.FragmentSearchBinding
 import com.example.newstracker.dialog.SearchPreferenceDialog
 import com.example.newstracker.recyclerView.preference.SearchPreferenceAdapter
 import com.example.newstracker.recyclerView.preference.SearchPreferenceDecorator
 import com.example.newstracker.room.entity.PreferenceEntity
 import com.example.newstracker.viewModel.searchPreference.SearchPreferenceVM
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
-class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnItemClickedListener {
+class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnItemClickedListener, SearchPreferenceSwipeListener.DeleteSwipe {
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
@@ -52,7 +51,8 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
             Navigation.findNavController(anotherView)
                 .navigate(R.id.searchFragment_addNewCategory)
         }
-
+        val itemSwipeListener = SearchPreferenceSwipeListener(this)
+        
         val itemTouchHelper = ItemTouchHelper(itemSwipeListener)
         itemTouchHelper.attachToRecyclerView(binding.searchFragmentRecyclerView)
 
@@ -92,28 +92,33 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
         _binding = null
     }
 
-
-    private val itemSwipeListener =
-        object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                return true
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                lifecycleScope.launch(IO) {
-                    val deleteLabel = searchPreferenceVM.retrieveAllPreference().value?.get(viewHolder.adapterPosition)?.label
-                    deleteLabel?.let { searchPreferenceVM.deletePreference(it) }
-                    withContext(Main){
-                        myAdapter.notifyDataSetChanged()
-                    }
-
+    
+    private fun checkDelete(label: String?) {
+        MaterialAlertDialogBuilder(anotherView.context)
+            .setTitle(resources.getString(R.string.dialog_delete_title))
+            .setMessage((resources.getString(R.string.dialog_delete_message, label)))
+            .setIcon(R.drawable.ic_delete)
+            .setPositiveButton(resources.getString(R.string.dialog_delete_confirm)) { _, _ ->
+                run {
+                    deletePreference(label)
                 }
             }
+            .setNegativeButton(resources.getString(R.string.dialog_delete_cancel), null)
+            .show()
+    }
+
+    private fun deletePreference(label: String?) {
+        lifecycleScope.launch(IO) {
+            label?.let { searchPreferenceVM.deletePreference(it) }
         }
+    }
+
+    override fun swipePreferenceIndex(index: Int) {
+        val label = searchPreferenceVM.retrieveAllPreference().value?.get(index)?.label
+        checkDelete(label)
+    }
+
+
 }
 
 
