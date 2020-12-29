@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.UserNewsPreference">
+    tools:context=".fragments.AddSearchPreferenceFragment">
 
 
     <TextView
@@ -29,11 +29,14 @@
         android:hint="@string/dialog_search_label"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView">
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:counterEnabled="true"
+        app:counterMaxLength="15">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:maxLength="15"
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 

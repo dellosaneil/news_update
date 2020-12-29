@@ -20,6 +20,8 @@ class ResultVM(private val retrofitRepository: RetrofitRepository) : ViewModel()
     private var preferences: PreferenceEntity? = null
     private var finished: MutableLiveData<Boolean>? = null
 
+
+
     fun checkFinished(): LiveData<Boolean>? {
         if (finished == null) {
             finished = MutableLiveData()

@@ -11,7 +11,7 @@ class DatabaseRepository(private val preferenceDao: PreferenceDao) {
     suspend fun addNewPreference(preference: PreferenceEntity) =
         preferenceDao.addPreference(preference)
 
-    suspend fun deletePreference(label: String) = preferenceDao.deletePref(label)
+    suspend fun deletePreference(label: String) = preferenceDao.deletePreference(label)
 
     suspend fun checkLabel(label: String) = preferenceDao.checkLabel(label)
     

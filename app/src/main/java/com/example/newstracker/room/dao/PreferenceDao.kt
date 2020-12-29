@@ -20,6 +20,6 @@ interface PreferenceDao {
     fun getAllSavedPreference() : LiveData<List<PreferenceEntity>>
 
     @Query("DELETE FROM preference_table WHERE label = :deletePreference")
-    suspend fun deletePref(deletePreference : String)
+    suspend fun deletePreference(deletePreference : String)
 
 }

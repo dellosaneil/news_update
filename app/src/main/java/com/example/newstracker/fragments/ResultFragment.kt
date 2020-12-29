@@ -8,51 +8,66 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.newstracker.Constants.Companion.ARGUMENT_BUNDLE
 import com.example.newstracker.FragmentLifecycleLogging
 import com.example.newstracker.R
-import com.example.newstracker.databinding.FragmentNewsArticlesBinding
+import com.example.newstracker.databinding.FragmentResultsBinding
 import com.example.newstracker.recyclerView.result.ResultAdapter
 import com.example.newstracker.recyclerView.result.ResultDecorator
 import com.example.newstracker.retrofit.dataclass.Article
 import com.example.newstracker.retrofit.dataclass.NewsResponse
+import com.example.newstracker.room.NewsTrackerDatabase
+import com.example.newstracker.room.dao.SavedArticlesDao
 import com.example.newstracker.room.entity.PreferenceEntity
+import com.example.newstracker.room.entity.SavedArticlesEntity
 import com.example.newstracker.viewModel.result.ResultVM
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.Response
 
-class ResultFragment : FragmentLifecycleLogging() {
+class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.SaveArticleListener {
 
 
-    private var _binding: FragmentNewsArticlesBinding? = null
+    private var _binding: FragmentResultsBinding? = null
     private val binding get() = _binding!!
+    private lateinit var databaseDao: SavedArticlesDao
 
     private val viewModel: ResultVM by activityViewModels()
     private lateinit var myAdapter: ResultAdapter
 
-    private val TAG = "ResultFragment"
+    private lateinit var globalView: View
 
+    private var toast: Toast? = null
+
+    private val TAG = "ResultFragment"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentNewsArticlesBinding.inflate(inflater, container, false)
+        _binding = FragmentResultsBinding.inflate(inflater, container, false)
+        globalView = binding.root
         val prefs = arguments?.getStringArray(ARGUMENT_BUNDLE)
-        initializeToolbar(prefs?.get(0), binding.root)
+        databaseDao =
+            globalView.let { NewsTrackerDatabase.getDatabase(it.context).savedArticlesDao() }
+        initializeToolbar(prefs?.get(0))
         searchArticlesWithPreference(prefs)
         initializeRecyclerView()
-        return binding.root
+        return globalView
     }
 
-    private fun initializeToolbar(label: String?, view: View) {
+    private fun initializeToolbar(label: String?) {
         binding.topAppBar.title = label
         binding.topAppBar.setNavigationOnClickListener {
-            Navigation.findNavController(view).navigateUp()
+            Navigation.findNavController(globalView).navigateUp()
         }
     }
-    
+
     //    Observer Variables
     private val visibilityObserver = Observer<Boolean> { changeVisibility(it) }
     private var articleObserver = Observer<Response<NewsResponse>?> { updateRecyclerView(it) }
@@ -90,7 +105,7 @@ class ResultFragment : FragmentLifecycleLogging() {
 
     private fun initializeRecyclerView() {
         Log.i(TAG, "initializeRecyclerView: ")
-        myAdapter = ResultAdapter()
+        myAdapter = ResultAdapter(this)
         binding.newsArticleRecyclerView.apply {
             setHasFixedSize(true)
             val decorator = ResultDecorator(10, 5)
@@ -147,5 +162,27 @@ class ResultFragment : FragmentLifecycleLogging() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onClickSaveListener(article: SavedArticlesEntity) {
+        var message: String
+        lifecycleScope.launch(IO) {
+            message = if (databaseDao.checkArticle(article.articleTitle) == 0) {
+                databaseDao.saveArticle(article)
+                resources.getString(R.string.save_article_success)
+            } else {
+                resources.getString(R.string.save_article_error)
+            }
+            withContext(Main) {
+                if(toast == null){
+                    toast = Toast.makeText(globalView.context, message, Toast.LENGTH_LONG)
+                    toast!!.show()
+                }else{
+                    toast!!.cancel()
+                    toast = Toast.makeText(globalView.context, message, Toast.LENGTH_LONG)
+                    toast!!.show()
+                }
+            }
+        }
     }
 }

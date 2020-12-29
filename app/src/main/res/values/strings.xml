@@ -39,4 +39,9 @@
     <string name="dialog_delete_confirm">Delete</string>
     <string name="dialog_delete_cancel">Cancel</string>
 
+    <string name="top_bar_menu_info">Information</string>
+    <string name="top_bar_menu_info_content">Show Details</string>
+
+    <string name="save_article_success">Article Saved</string>
+    <string name="save_article_error">Error: Article already saved</string>
 </resources>

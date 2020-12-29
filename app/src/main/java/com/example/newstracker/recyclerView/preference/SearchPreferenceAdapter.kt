@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.newstracker.R
-import com.example.newstracker.databinding.SearchPreferenceListLayoutBinding
+import com.example.newstracker.databinding.ListLayoutSearchPreferencesBinding
 import com.example.newstracker.room.entity.PreferenceEntity
 
 
@@ -25,7 +25,7 @@ class SearchPreferenceAdapter(private val listener: OnItemClickedListener) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchPreferenceViewHolder {
-        val binding = SearchPreferenceListLayoutBinding.inflate(
+        val binding = ListLayoutSearchPreferencesBinding.inflate(
             LayoutInflater.from(parent.context),
             parent, false
         )
@@ -61,7 +61,7 @@ class SearchPreferenceAdapter(private val listener: OnItemClickedListener) :
     }
 
 
-    inner class SearchPreferenceViewHolder(private val binding: SearchPreferenceListLayoutBinding) :
+    inner class SearchPreferenceViewHolder(private val binding: ListLayoutSearchPreferencesBinding) :
         RecyclerView.ViewHolder(binding.root),
         View.OnClickListener {
 

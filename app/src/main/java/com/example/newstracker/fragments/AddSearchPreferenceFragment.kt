@@ -11,7 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import com.example.newstracker.FragmentLifecycleLogging
 import com.example.newstracker.R
-import com.example.newstracker.databinding.FragmentUserNewsPreferenceBinding
+import com.example.newstracker.databinding.FragmentAddSearchPreferenceBinding
 import com.example.newstracker.repository.DatabaseRepository
 import com.example.newstracker.room.NewsTrackerDatabase
 import com.example.newstracker.room.entity.PreferenceEntity
@@ -21,11 +21,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-class UserNewsPreference : FragmentLifecycleLogging() {
+class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
 
     private lateinit var repository: DatabaseRepository
     private val TAG = "UserNewsPreference"
-    private var _binding: FragmentUserNewsPreferenceBinding? = null
+    private var _binding: FragmentAddSearchPreferenceBinding? = null
     private val binding get() = _binding!!
 
 
@@ -33,7 +33,7 @@ class UserNewsPreference : FragmentLifecycleLogging() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentUserNewsPreferenceBinding.inflate(inflater, container, false)
+        _binding = FragmentAddSearchPreferenceBinding.inflate(inflater, container, false)
         val view = binding.root
 
         val dao = NewsTrackerDatabase.getDatabase(view.context).preferenceDao()

@@ -30,9 +30,9 @@
         tools:layout="@layout/fragment_settings" />
     <fragment
         android:id="@+id/userNewsPreference"
-        android:name="com.example.newstracker.fragments.UserNewsPreference"
+        android:name="com.example.newstracker.fragments.AddSearchPreferenceFragment"
         android:label="fragment_user_news_preference"
-        tools:layout="@layout/fragment_user_news_preference">
+        tools:layout="@layout/fragment_add_search_preference">
         <action
             android:id="@+id/addNewSearchPreference_searchPreferences"
             app:destination="@id/searchPreferences" />
@@ -41,6 +41,6 @@
         android:id="@+id/newsArticlesFragment"
         android:name="com.example.newstracker.fragments.ResultFragment"
         android:label="fragment_news_articles"
-        tools:layout="@layout/fragment_news_articles">
+        tools:layout="@layout/fragment_results">
     </fragment>
 </navigation>
