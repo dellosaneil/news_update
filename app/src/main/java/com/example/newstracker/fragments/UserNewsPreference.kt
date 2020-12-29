@@ -88,8 +88,6 @@ class UserNewsPreference : FragmentLifecycleLogging() {
     }
 
 
-
-
     //converts all default values to blanks.
     private fun convertAll(defaultText: String, inputValue: String): String {
         return if (defaultText == inputValue) {
@@ -124,7 +122,7 @@ class UserNewsPreference : FragmentLifecycleLogging() {
                 Log.i(TAG, "saveToRoomDatabase:Update ")
                 repository.addNewPreference(newPreference)
                 Navigation.findNavController(view)
-                    .navigate(R.id.addNewCategory_searchFragment)
+                    .navigate(R.id.addNewSearchPreference_searchPreferences)
             } else {
                 withContext(Main) {
                     binding.newsLabel.error =

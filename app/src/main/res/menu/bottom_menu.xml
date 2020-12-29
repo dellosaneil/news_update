@@ -6,7 +6,7 @@
         android:icon="@drawable/ic_saved_article"
         android:title="@string/bottom_nav_saved" />
     <item
-        android:id="@+id/news_fragment"
+        android:id="@+id/searchPreferences"
         android:icon="@drawable/ic_news_bottom_nav"
         android:title="@string/bottom_nav_breaking_news" />
     <item

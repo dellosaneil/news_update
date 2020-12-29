@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.newstracker.Constants.Companion.ARGUMENT_BUNDLE
 import com.example.newstracker.FragmentLifecycleLogging
@@ -39,11 +40,19 @@ class ResultFragment : FragmentLifecycleLogging() {
     ): View {
         _binding = FragmentNewsArticlesBinding.inflate(inflater, container, false)
         val prefs = arguments?.getStringArray(ARGUMENT_BUNDLE)
+        initializeToolbar(prefs?.get(0), binding.root)
         searchArticlesWithPreference(prefs)
         initializeRecyclerView()
         return binding.root
     }
 
+    private fun initializeToolbar(label: String?, view: View) {
+        binding.topAppBar.title = label
+        binding.topAppBar.setNavigationOnClickListener {
+            Navigation.findNavController(view).navigateUp()
+        }
+    }
+    
     //    Observer Variables
     private val visibilityObserver = Observer<Boolean> { changeVisibility(it) }
     private var articleObserver = Observer<Response<NewsResponse>?> { updateRecyclerView(it) }
@@ -59,6 +68,7 @@ class ResultFragment : FragmentLifecycleLogging() {
             binding.newsArticleRecyclerView.visibility = View.INVISIBLE
         }
     }
+
     private fun updateRecyclerView(articles: Response<NewsResponse>?) {
         Log.i(TAG, "updateRecyclerView: ")
         if (articles?.isSuccessful == true) {
@@ -82,6 +92,7 @@ class ResultFragment : FragmentLifecycleLogging() {
         Log.i(TAG, "initializeRecyclerView: ")
         myAdapter = ResultAdapter()
         binding.newsArticleRecyclerView.apply {
+            setHasFixedSize(true)
             val decorator = ResultDecorator(10, 5)
             addItemDecoration(decorator)
             adapter = myAdapter
@@ -89,12 +100,20 @@ class ResultFragment : FragmentLifecycleLogging() {
         }
         observeData()
     }
-    
+
     //   Put data into view model
-    private fun searchArticlesWithPreference(prefs: Array<String>?){
+    private fun searchArticlesWithPreference(prefs: Array<String>?) {
         Log.i(TAG, "searchArticlesWithPreference: ")
         if (prefs != null) {
-            viewModel.placePreferences(PreferenceEntity(prefs[0], prefs[1], prefs[2], prefs[3], prefs[4]))
+            viewModel.placePreferences(
+                PreferenceEntity(
+                    prefs[0],
+                    prefs[1],
+                    prefs[2],
+                    prefs[3],
+                    prefs[4]
+                )
+            )
         }
         viewModel.retrieveArticles()
     }

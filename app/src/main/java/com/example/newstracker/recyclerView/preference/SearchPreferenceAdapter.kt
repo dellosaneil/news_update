@@ -58,7 +58,6 @@ class SearchPreferenceAdapter(private val listener: OnItemClickedListener) :
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
             return oldList[oldItemPosition] == newList[newItemPosition]
         }
-
     }
 
 
@@ -78,11 +77,11 @@ class SearchPreferenceAdapter(private val listener: OnItemClickedListener) :
 
         override fun onClick(v: View?) {
             when (v?.id) {
-                R.id.searchPreference_searchBreakingNews -> searchPreferences?.get(adapterPosition)
-                    ?.let { listener.searchBreakingNews(it) }
+                R.id.searchPreference_searchBreakingNews -> searchPreferences[adapterPosition]
+                    .let { listener.searchBreakingNews(it) }
 
-                R.id.searchPreference_details -> searchPreferences?.get(adapterPosition)
-                    ?.let { listener.preferenceDetails(it) }
+                R.id.searchPreference_details -> searchPreferences[adapterPosition]
+                    .let { listener.preferenceDetails(it) }
             }
         }
     }
