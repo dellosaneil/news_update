@@ -19,8 +19,8 @@ import com.example.newstracker.R
 import com.example.newstracker.callbackListener.SearchPreferenceSwipeListener
 import com.example.newstracker.databinding.FragmentSearchBinding
 import com.example.newstracker.dialog.SearchPreferenceDialog
-import com.example.newstracker.recyclerView.preference.SearchPreferenceAdapter
-import com.example.newstracker.recyclerView.preference.SearchPreferenceDecorator
+import com.example.newstracker.recyclerView.RecyclerViewDecorator
+import com.example.newstracker.recyclerView.SearchPreferenceAdapter
 import com.example.newstracker.room.entity.PreferenceEntity
 import com.example.newstracker.viewModel.searchPreference.SearchPreferenceVM
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -68,7 +68,7 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
         binding.searchFragmentRecyclerView.apply {
             adapter = myAdapter
             layoutManager = LinearLayoutManager(requireContext())
-            val customDecorator = SearchPreferenceDecorator(5, 0)
+            val customDecorator = RecyclerViewDecorator(5, 0)
             addItemDecoration(customDecorator)
             searchPreferenceVM.retrieveAllPreference()
                 .observe(requireActivity(), { myAdapter.setSearchPreferences(it) })

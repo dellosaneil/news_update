@@ -44,4 +44,6 @@
 
     <string name="save_article_success">Article Saved</string>
     <string name="save_article_error">Error: Article already saved</string>
+
+    <string name="saved_articles_text_view">Saved Articles</string>
 </resources>

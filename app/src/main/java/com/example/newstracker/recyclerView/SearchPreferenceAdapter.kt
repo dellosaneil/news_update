@@ -1,4 +1,4 @@
-package com.example.newstracker.recyclerView.preference
+package com.example.newstracker.recyclerView
 
 import android.view.LayoutInflater
 import android.view.View

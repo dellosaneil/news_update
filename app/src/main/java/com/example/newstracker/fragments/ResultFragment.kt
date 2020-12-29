@@ -15,8 +15,8 @@ import com.example.newstracker.Constants.Companion.ARGUMENT_BUNDLE
 import com.example.newstracker.FragmentLifecycleLogging
 import com.example.newstracker.R
 import com.example.newstracker.databinding.FragmentResultsBinding
-import com.example.newstracker.recyclerView.result.ResultAdapter
-import com.example.newstracker.recyclerView.result.ResultDecorator
+import com.example.newstracker.recyclerView.RecyclerViewDecorator
+import com.example.newstracker.recyclerView.ResultAdapter
 import com.example.newstracker.retrofit.dataclass.Article
 import com.example.newstracker.retrofit.dataclass.NewsResponse
 import com.example.newstracker.room.NewsTrackerDatabase
@@ -108,7 +108,7 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.SaveArticleList
         myAdapter = ResultAdapter(this)
         binding.newsArticleRecyclerView.apply {
             setHasFixedSize(true)
-            val decorator = ResultDecorator(10, 5)
+            val decorator = RecyclerViewDecorator(10, 0)
             addItemDecoration(decorator)
             adapter = myAdapter
             layoutManager = LinearLayoutManager(requireActivity())

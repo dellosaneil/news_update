@@ -1,4 +1,4 @@
-package com.example.newstracker.recyclerView.result
+package com.example.newstracker.recyclerView
 
 import android.util.Log
 import android.view.LayoutInflater
@@ -53,20 +53,18 @@ class ResultAdapter(val listener : SaveArticleListener) : RecyclerView.Adapter<R
         }
 
         override fun onClick(v: View?) {
+            listener.onClickSaveListener(createSavedEntity())
+        }
+
+        private fun createSavedEntity():SavedArticlesEntity{
             val article = newsArticles?.get(adapterPosition)
             val title = article?.title?: ""
             val description = article?.description ?: ""
             val articleLink = article?.url ?: ""
             val source = article?.source?.name ?: ""
-            listener.onClickSaveListener(SavedArticlesEntity(title, description, articleLink, source))
-
+            return SavedArticlesEntity(title, description, articleLink, source)
         }
     }
-
-
-//    val articleTitle : String,
-//    val articleDescription : String,
-//    val articleLink : String
 
     interface SaveArticleListener{
         fun onClickSaveListener(article : SavedArticlesEntity)
