@@ -27,7 +27,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 
-class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnItemClickedListener, SearchPreferenceSwipeListener.DeleteSwipe {
+class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnItemClickedListener,
+    SearchPreferenceSwipeListener.DeleteSwipe {
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
@@ -52,7 +53,7 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
                 .navigate(R.id.searchPreferences_addNewSearchPreference)
         }
         val itemSwipeListener = SearchPreferenceSwipeListener(this)
-        
+
         val itemTouchHelper = ItemTouchHelper(itemSwipeListener)
         itemTouchHelper.attachToRecyclerView(binding.searchFragmentRecyclerView)
 
@@ -92,18 +93,25 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
         _binding = null
     }
 
-    
-    private fun checkDelete(label: String?) {
+
+    private fun checkDelete(label: String?, index: Int) {
         MaterialAlertDialogBuilder(anotherView.context)
-            .setTitle(resources.getString(R.string.dialog_delete_title))
-            .setMessage((resources.getString(R.string.dialog_delete_message, label)))
-            .setPositiveButton(resources.getString(R.string.dialog_delete_confirm)) { _, _ ->
-                run {
-                    deletePreference(label)
+            .apply {
+                setTitle(resources.getString(R.string.dialog_delete_title))
+                setMessage((resources.getString(R.string.dialog_delete_message, label)))
+                setPositiveButton(resources.getString(R.string.dialog_delete_confirm)) { _, _ ->
+                    run {
+                        deletePreference(label)
+                    }
                 }
+                setNegativeButton(resources.getString(R.string.dialog_delete_cancel)) { _, _ ->
+                    myAdapter.notifyItemChanged(
+                        index
+                    )
+                }
+                setCancelable(false)
+                show()
             }
-            .setNegativeButton(resources.getString(R.string.dialog_delete_cancel), null)
-            .show()
     }
 
     private fun deletePreference(label: String?) {
@@ -114,7 +122,7 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
 
     override fun swipePreferenceIndex(index: Int) {
         val label = searchPreferenceVM.retrieveAllPreference().value?.get(index)?.label
-        checkDelete(label)
+        checkDelete(label, index)
         myAdapter.notifyDataSetChanged()
     }
 }

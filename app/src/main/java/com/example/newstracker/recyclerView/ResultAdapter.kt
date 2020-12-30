@@ -1,5 +1,6 @@
 package com.example.newstracker.recyclerView
 
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -49,13 +50,26 @@ class ResultAdapter(val linkListener : OpenLinkListener, val saveListener : Save
         }
 
         fun bind(article: Article) {
+            colorUrlLink(article.url)
             binding.rvTitle.text = article.title
             binding.rvDescription.text = article.description
             binding.rvSource.text = article.source.name
         }
 
+        private fun colorUrlLink(link : String){
+            val isSecure = link.subSequence(0,5)
+            if(isSecure != "https"){
+                binding.rvTitle.setTextColor(Color.RED)
+                binding.rvLogo.setImageResource(R.drawable.ic_unsecure)
+            }else{
+                binding.rvTitle.setTextColor(Color.BLACK)
+                binding.rvLogo.setImageResource(R.drawable.ic_news_recycler_view)
+            }
+        }
+
+
         override fun onClick(v: View?) {
-            newsArticles?.get(adapterPosition)?.let { linkListener.onLongPressLinkListener(it.url) }
+            newsArticles?.get(adapterPosition)?.let { linkListener.onPressLinkListener(it.url) }
         }
 
         private fun createSavedEntity():SavedArticlesEntity{
@@ -79,7 +93,7 @@ class ResultAdapter(val linkListener : OpenLinkListener, val saveListener : Save
     }
 
     interface OpenLinkListener{
-        fun onLongPressLinkListener(urlLink : String)
+        fun onPressLinkListener(urlLink : String)
     }
     interface SaveArticleListener{
         fun saveArticleListener(article : SavedArticlesEntity)

@@ -45,4 +45,6 @@ class SavedArticlesVM(application: Application) : AndroidViewModel(application) 
     fun deleteArticle(title : String){
         viewModelScope.launch(IO) { savedArticlesDao?.deleteArticle(title) }
     }
+
+
 }

@@ -21,12 +21,13 @@ import com.example.newstracker.recyclerView.SavedArticlesAdapter
 import com.example.newstracker.viewModel.savedArticles.SavedArticlesVM
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.OnOpenLinkListener, SearchPreferenceSwipeListener.DeleteSwipe  {
+class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.OnOpenLinkListener,
+    SearchPreferenceSwipeListener.DeleteSwipe {
 
     private var _binding: FragmentSavedBinding? = null
     private val binding get() = _binding!!
     private lateinit var viewModel: SavedArticlesVM
-    private val myAdapter = SavedArticlesAdapter( this)
+    private val myAdapter = SavedArticlesAdapter(this)
     private val TAG = "SavedArticlesFragment"
 
     override fun onCreateView(
@@ -89,15 +90,19 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
     }
 
     override fun swipePreferenceIndex(index: Int) {
-        val title = viewModel.getSavedArticles()?.value?.get(index)?.articleTitle
+        val deletedArticle = viewModel.getSavedArticles()?.value?.get(index)
+        val title = deletedArticle?.articleTitle
+
         MaterialAlertDialogBuilder(requireContext()).apply {
             setTitle(getString(R.string.delete_dialog_title))
             setMessage(getString(R.string.delete_dialog_message, title))
             setPositiveButton(getString(R.string.dialog_delete_confirm)) { _, _ ->
                 title?.let { viewModel.deleteArticle(it) }
             }
-            setNegativeButton(getString(R.string.dialog_delete_cancel), null)
+            setNegativeButton(getString(R.string.dialog_delete_cancel)) {_,_ ->
+                myAdapter.notifyItemChanged(index)
+            }
+            setCancelable(false)
         }.show()
-        myAdapter.notifyDataSetChanged()
     }
 }

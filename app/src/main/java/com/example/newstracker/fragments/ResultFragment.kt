@@ -169,7 +169,7 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
         _binding = null
     }
 
-    override fun onLongPressLinkListener(urlLink: String) {
+    override fun onPressLinkListener(urlLink: String) {
         val intent = Intent(requireActivity(), WebViewActivity::class.java)
         intent.putExtra(URL_LINK_EXTRA, urlLink)
         startActivity(intent)

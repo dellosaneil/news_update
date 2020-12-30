@@ -1,5 +1,7 @@
 package com.example.newstracker.recyclerView
 
+import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +21,8 @@ class SavedArticlesAdapter(val openLinkListener: OnOpenLinkListener) : RecyclerV
         savedArticles = newList
         diffResult.dispatchUpdatesTo(this)
     }
+
+    fun getSavedArticles() = savedArticles
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SavedArticlesViewHolder {
@@ -63,9 +67,21 @@ class SavedArticlesAdapter(val openLinkListener: OnOpenLinkListener) : RecyclerV
         }
 
         fun bind(savedArticle: SavedArticlesEntity) {
+            colorUrlLink(savedArticle.articleLink)
             binding.savedArticlesTitle.text = savedArticle.articleTitle
             binding.savedArticlesDescription.text = savedArticle.articleDescription
             binding.savedArticlesSource.text = savedArticle.source
+        }
+
+        private fun colorUrlLink(link : String){
+            val isSecure = link.subSequence(0,5)
+            if(isSecure != "https"){
+                binding.savedArticlesTitle.setTextColor(Color.RED)
+                binding.savedArticlesLogo.setImageResource(R.drawable.ic_unsecure)
+            }else{
+                binding.savedArticlesTitle.setTextColor(Color.BLACK)
+                binding.savedArticlesLogo.setImageResource(R.drawable.ic_globe)
+            }
         }
 
         override fun onClick(v: View?) {
