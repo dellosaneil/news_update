@@ -1,17 +1,19 @@
 package com.example.newstracker.recyclerView
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.example.newstracker.R
 import com.example.newstracker.databinding.ListLayoutSavedArticlesBinding
 import com.example.newstracker.room.entity.SavedArticlesEntity
 
-class SavedArticlesAdapter : RecyclerView.Adapter<SavedArticlesAdapter.SavedArticlesViewHolder>() {
+class SavedArticlesAdapter(val openLinkListener: OnOpenLinkListener) : RecyclerView.Adapter<SavedArticlesAdapter.SavedArticlesViewHolder>() {
 
-    private var savedArticles : List<SavedArticlesEntity> = ArrayList()
+    private var savedArticles: List<SavedArticlesEntity> = ArrayList()
 
-    fun setSavedArticles(newList : List<SavedArticlesEntity>){
+    fun setSavedArticles(newList: List<SavedArticlesEntity>) {
         val oldList = savedArticles
         val diffResult = DiffUtil.calculateDiff(SavedArticlesDiffUtilCallback(oldList, newList))
         savedArticles = newList
@@ -35,7 +37,10 @@ class SavedArticlesAdapter : RecyclerView.Adapter<SavedArticlesAdapter.SavedArti
     override fun getItemCount() = savedArticles.size
 
 
-    class SavedArticlesDiffUtilCallback(private val oldList : List<SavedArticlesEntity> , private val newList : List<SavedArticlesEntity>) : DiffUtil.Callback(){
+    class SavedArticlesDiffUtilCallback(
+        private val oldList: List<SavedArticlesEntity>,
+        private val newList: List<SavedArticlesEntity>
+    ) : DiffUtil.Callback() {
         override fun getOldListSize() = oldList.size
 
         override fun getNewListSize() = newList.size
@@ -50,15 +55,27 @@ class SavedArticlesAdapter : RecyclerView.Adapter<SavedArticlesAdapter.SavedArti
 
     }
 
+    inner class SavedArticlesViewHolder(private val binding: ListLayoutSavedArticlesBinding) :
+        RecyclerView.ViewHolder(binding.root), View.OnClickListener{
 
+        init{
+            binding.savedArticlesLogo.setOnClickListener(this)
+        }
 
-    class SavedArticlesViewHolder(private val binding : ListLayoutSavedArticlesBinding) : RecyclerView.ViewHolder(binding.root) {
-
-        fun bind(savedArticle : SavedArticlesEntity){
+        fun bind(savedArticle: SavedArticlesEntity) {
             binding.savedArticlesTitle.text = savedArticle.articleTitle
             binding.savedArticlesDescription.text = savedArticle.articleDescription
             binding.savedArticlesSource.text = savedArticle.source
         }
+
+        override fun onClick(v: View?) {
+            openLinkListener.openLinkListener(savedArticles[adapterPosition].articleLink)
+        }
     }
+    interface OnOpenLinkListener{
+        fun openLinkListener(url : String)
+    }
+
+
 
 }

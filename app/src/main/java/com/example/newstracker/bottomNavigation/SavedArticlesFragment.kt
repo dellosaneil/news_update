@@ -1,39 +1,47 @@
 package com.example.newstracker.bottomNavigation
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.Observer
+import androidx.core.text.parseAsHtml
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.newstracker.Constants
 import com.example.newstracker.FragmentLifecycleLogging
+import com.example.newstracker.R
+import com.example.newstracker.WebViewActivity
+import com.example.newstracker.callbackListener.SearchPreferenceSwipeListener
 import com.example.newstracker.databinding.FragmentSavedBinding
-import com.example.newstracker.databinding.FragmentSearchBinding
 import com.example.newstracker.recyclerView.RecyclerViewDecorator
 import com.example.newstracker.recyclerView.SavedArticlesAdapter
 import com.example.newstracker.viewModel.savedArticles.SavedArticlesVM
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-class SavedArticlesFragment : FragmentLifecycleLogging() {
+class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.OnOpenLinkListener, SearchPreferenceSwipeListener.DeleteSwipe  {
 
     private var _binding: FragmentSavedBinding? = null
     private val binding get() = _binding!!
     private lateinit var viewModel: SavedArticlesVM
-    private val myAdapter = SavedArticlesAdapter()
+    private val myAdapter = SavedArticlesAdapter( this)
     private val TAG = "SavedArticlesFragment"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentSavedBinding.inflate(layoutInflater)
         viewModel = ViewModelProvider(requireActivity()).get(SavedArticlesVM::class.java)
         initializeRecyclerView()
+
+        val itemSwipeListener = SearchPreferenceSwipeListener(this)
+        val itemTouchHelper = ItemTouchHelper(itemSwipeListener)
+        itemTouchHelper.attachToRecyclerView(binding.savedArticlesRecyclerView)
+
+
 
         return binding.root
     }
@@ -54,15 +62,12 @@ class SavedArticlesFragment : FragmentLifecycleLogging() {
 
     private fun observeViewModel() {
         Log.i(TAG, "observeViewModel: ")
-
         viewModel.isFinished().observe(viewLifecycleOwner, {
             if (it) {
                 visibilityControl()
                 startObserveForChanges()
             }
         })
-
-
     }
 
     private fun startObserveForChanges() {
@@ -77,4 +82,22 @@ class SavedArticlesFragment : FragmentLifecycleLogging() {
         binding.savedArticlesProgressBar.visibility = View.INVISIBLE
     }
 
+    override fun openLinkListener(url: String) {
+        val intent = Intent(requireActivity(), WebViewActivity::class.java)
+        intent.putExtra(Constants.URL_LINK_EXTRA, url)
+        startActivity(intent)
+    }
+
+    override fun swipePreferenceIndex(index: Int) {
+        val title = viewModel.getSavedArticles()?.value?.get(index)?.articleTitle
+        MaterialAlertDialogBuilder(requireContext()).apply {
+            setTitle(getString(R.string.delete_dialog_title))
+            setMessage(getString(R.string.delete_dialog_message, title))
+            setPositiveButton(getString(R.string.dialog_delete_confirm)) { _, _ ->
+                title?.let { viewModel.deleteArticle(it) }
+            }
+            setNegativeButton(getString(R.string.dialog_delete_cancel), null)
+        }.show()
+        myAdapter.notifyDataSetChanged()
+    }
 }

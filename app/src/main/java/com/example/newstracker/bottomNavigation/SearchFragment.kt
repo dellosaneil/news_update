@@ -97,7 +97,6 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
         MaterialAlertDialogBuilder(anotherView.context)
             .setTitle(resources.getString(R.string.dialog_delete_title))
             .setMessage((resources.getString(R.string.dialog_delete_message, label)))
-            .setIcon(R.drawable.ic_delete)
             .setPositiveButton(resources.getString(R.string.dialog_delete_confirm)) { _, _ ->
                 run {
                     deletePreference(label)

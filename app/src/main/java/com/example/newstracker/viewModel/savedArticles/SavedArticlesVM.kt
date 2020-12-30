@@ -11,7 +11,6 @@ import com.example.newstracker.room.dao.SavedArticlesDao
 import com.example.newstracker.room.entity.SavedArticlesEntity
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -20,7 +19,7 @@ class SavedArticlesVM(application: Application) : AndroidViewModel(application) 
     private var savedArticlesDao: SavedArticlesDao? =
         NewsTrackerDatabase.getDatabase(application).savedArticlesDao()
 
-    private var isFinishedLoading = MutableLiveData(false)
+    private var isFinishedLoading :MutableLiveData<Boolean> = MutableLiveData(false)
 
     private val TAG = "SavedArticlesVM"
     private var savedArticles: LiveData<List<SavedArticlesEntity>>? = null
@@ -37,12 +36,13 @@ class SavedArticlesVM(application: Application) : AndroidViewModel(application) 
 
     fun isFinished() = isFinishedLoading
 
-
     private fun setSavedArticles() {
         savedArticles = savedArticlesDao?.getAllSavedArticles()
-
     }
 
     fun getSavedArticles() = savedArticles
 
+    fun deleteArticle(title : String){
+        viewModelScope.launch(IO) { savedArticlesDao?.deleteArticle(title) }
+    }
 }

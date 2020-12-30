@@ -5,12 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.newstracker.R
 import com.example.newstracker.databinding.ListLayoutResultsBinding
 import com.example.newstracker.retrofit.dataclass.Article
 import com.example.newstracker.room.entity.SavedArticlesEntity
 
 
-class ResultAdapter(val listener : SaveArticleListener) : RecyclerView.Adapter<ResultAdapter.ResultViewHolder>() {
+class ResultAdapter(val linkListener : OpenLinkListener, val saveListener : SaveArticleListener) : RecyclerView.Adapter<ResultAdapter.ResultViewHolder>() {
 
     private var newsArticles: List<Article>? = null
     private val TAG = "ResultAdapter"
@@ -40,10 +41,11 @@ class ResultAdapter(val listener : SaveArticleListener) : RecyclerView.Adapter<R
     override fun getItemCount() = newsArticles?.size ?:0
 
     inner class ResultViewHolder(private val binding: ListLayoutResultsBinding) :
-        RecyclerView.ViewHolder(binding.root), View.OnClickListener {
+        RecyclerView.ViewHolder(binding.root), View.OnClickListener, View.OnLongClickListener {
 
         init{
-            binding.rvTitle.setOnClickListener(this)
+            binding.rvLogo.setOnClickListener(this)
+            binding.listLayoutResultsCardView.setOnLongClickListener(this)
         }
 
         fun bind(article: Article) {
@@ -53,7 +55,7 @@ class ResultAdapter(val listener : SaveArticleListener) : RecyclerView.Adapter<R
         }
 
         override fun onClick(v: View?) {
-            listener.onClickSaveListener(createSavedEntity())
+            newsArticles?.get(adapterPosition)?.let { linkListener.onLongPressLinkListener(it.url) }
         }
 
         private fun createSavedEntity():SavedArticlesEntity{
@@ -64,10 +66,23 @@ class ResultAdapter(val listener : SaveArticleListener) : RecyclerView.Adapter<R
             val source = article?.source?.name ?: ""
             return SavedArticlesEntity(title, description, articleLink, source)
         }
+
+        override fun onLongClick(v: View?): Boolean {
+            return when(v?.id){
+                R.id.listLayoutResults_cardView -> {
+                    saveListener.saveArticleListener(createSavedEntity())
+                    true
+                }
+                else -> false
+            }
+        }
     }
 
+    interface OpenLinkListener{
+        fun onLongPressLinkListener(urlLink : String)
+    }
     interface SaveArticleListener{
-        fun onClickSaveListener(article : SavedArticlesEntity)
+        fun saveArticleListener(article : SavedArticlesEntity)
     }
 
 }

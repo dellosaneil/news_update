@@ -35,7 +35,7 @@
     <string name="dialog_preference_language"><b>Language: </b>%1$s</string>
 
     <string name="dialog_delete_title">Deleting a Saved Preference </string>
-    <string name="dialog_delete_message">Are you sure you want to delete:<b>%1$s</b></string>
+    <string name="dialog_delete_message">Are you sure you want to delete:\n<b>%1$s</b></string>
     <string name="dialog_delete_confirm">Delete</string>
     <string name="dialog_delete_cancel">Cancel</string>
 
@@ -43,7 +43,14 @@
     <string name="top_bar_menu_info_content">Show Details</string>
 
     <string name="save_article_success">Article Saved</string>
-    <string name="save_article_error">Error: Article already saved</string>
+    <string name="save_article_error">Article Already in Database</string>
 
     <string name="saved_articles_text_view">Saved Articles</string>
+
+    <string name="web_view_error">URL link unavailable</string>
+
+    <string name="delete_dialog_title">Delete Saved Article</string>
+    <string name="delete_dialog_message">Would you like to delete:\n<b>%1$s</b></string>
+
+
 </resources>

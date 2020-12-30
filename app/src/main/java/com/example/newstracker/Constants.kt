@@ -8,6 +8,9 @@ class Constants {
         const val DATABASE_NAME = "news_tracker_data"
         const val ARGUMENT_BUNDLE = "bundle"
 
+        const val URL_LINK_EXTRA = "urlLink"
+        const val URL_LINK_DEFAULT = "https://www.google.com/"
+
 
         const val SEARCH_DETAILS_DIALOG = "details"
     }
