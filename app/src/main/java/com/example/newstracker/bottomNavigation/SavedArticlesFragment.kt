@@ -41,9 +41,6 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
         val itemSwipeListener = SearchPreferenceSwipeListener(this)
         val itemTouchHelper = ItemTouchHelper(itemSwipeListener)
         itemTouchHelper.attachToRecyclerView(binding.savedArticlesRecyclerView)
-
-
-
         return binding.root
     }
 
@@ -52,7 +49,7 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
         Log.i(TAG, "initializeRecyclerView: ")
         binding.savedArticlesRecyclerView.apply {
             setHasFixedSize(true)
-            val decorator = RecyclerViewDecorator(8, 2)
+            val decorator = RecyclerViewDecorator(6, 6)
             addItemDecoration(decorator)
             adapter = myAdapter
             layoutManager = LinearLayoutManager(requireActivity())

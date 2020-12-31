@@ -21,7 +21,6 @@ class ResultVM(private val retrofitRepository: RetrofitRepository) : ViewModel()
     private var finished: MutableLiveData<Boolean>? = null
 
 
-
     fun checkFinished(): LiveData<Boolean>? {
         if (finished == null) {
             finished = MutableLiveData()
@@ -43,7 +42,12 @@ class ResultVM(private val retrofitRepository: RetrofitRepository) : ViewModel()
     fun retrieveArticles() {
         viewModelScope.launch(IO) {
             val tempValue =
-                retrofitRepository.repositoryArticles(preferences!!.category, preferences!!.country, preferences!!.keyword, preferences!!.language)
+                retrofitRepository.repositoryArticles(
+                    preferences!!.category,
+                    preferences!!.country,
+                    preferences!!.keyword,
+                    preferences!!.language
+                )
             withContext(Main) {
                 finished?.value = true
                 rawArticle?.value = tempValue

@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.newstracker.Constants.Companion.ARGUMENT_BUNDLE
@@ -28,7 +29,6 @@ import com.example.newstracker.room.dao.SavedArticlesDao
 import com.example.newstracker.room.entity.PreferenceEntity
 import com.example.newstracker.room.entity.SavedArticlesEntity
 import com.example.newstracker.viewModel.result.ResultVM
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -44,8 +44,7 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
 
     private val viewModel: ResultVM by activityViewModels()
     private lateinit var myAdapter: ResultAdapter
-
-    private lateinit var globalView: View
+    private lateinit var navController: NavController
 
     private var toast: Toast? = null
 
@@ -56,22 +55,28 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentResultsBinding.inflate(inflater, container, false)
-        globalView = binding.root
-        val prefs = arguments?.getStringArray(ARGUMENT_BUNDLE)
-        savedArticlesDao =
-            globalView.let { NewsTrackerDatabase.getDatabase(it.context).savedArticlesDao() }
-        initializeToolbar(prefs?.get(0))
-        searchArticlesWithPreference(prefs)
+        val prefs = arguments?.getParcelable<PreferenceEntity>(ARGUMENT_BUNDLE)
+
+        initializeToolbar(prefs?.label)
+        prefs?.let { searchArticlesWithPreference(it) }
         initializeRecyclerView()
-        return globalView
+        return binding.root
     }
 
     private fun initializeToolbar(label: String?) {
         binding.topAppBar.title = label
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        savedArticlesDao = NewsTrackerDatabase.getDatabase(view.context).savedArticlesDao()
+        navController = Navigation.findNavController(view)
+
         binding.topAppBar.setNavigationOnClickListener {
-            Navigation.findNavController(globalView).navigateUp()
+            navController.navigateUp()
         }
     }
+
 
     //    Observer Variables
     private val visibilityObserver = Observer<Boolean> { changeVisibility(it) }
@@ -113,7 +118,7 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
         myAdapter = ResultAdapter(this, this)
         binding.newsArticleRecyclerView.apply {
             setHasFixedSize(true)
-            val decorator = RecyclerViewDecorator(10, 0)
+            val decorator = RecyclerViewDecorator(6, 6)
             addItemDecoration(decorator)
             adapter = myAdapter
             layoutManager = LinearLayoutManager(requireActivity())
@@ -122,19 +127,9 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
     }
 
     //   Put data into view model
-    private fun searchArticlesWithPreference(prefs: Array<String>?) {
+    private fun searchArticlesWithPreference(prefs: PreferenceEntity) {
         Log.i(TAG, "searchArticlesWithPreference: ")
-        if (prefs != null) {
-            viewModel.placePreferences(
-                PreferenceEntity(
-                    prefs[0],
-                    prefs[1],
-                    prefs[2],
-                    prefs[3],
-                    prefs[4]
-                )
-            )
-        }
+        viewModel.placePreferences(prefs)
         viewModel.retrieveArticles()
     }
 

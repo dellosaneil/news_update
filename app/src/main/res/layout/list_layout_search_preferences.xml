@@ -14,9 +14,9 @@
             android:id="@+id/searchPreference_details"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="26dp"
-            android:layout_marginTop="14dp"
-            android:layout_marginBottom="14dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
             android:background="#00000000"
             android:contentDescription="@string/content_description"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -28,24 +28,29 @@
             android:id="@+id/searchPreference_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="14dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dp"
             android:textSize="16sp"
             android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/searchPreference_details"
             app:layout_constraintTop_toTopOf="@+id/searchPreference_details"
+            app:layout_constraintVertical_bias="0.0"
             tools:text="My First Search Preference" />
 
         <ImageButton
             android:id="@+id/searchPreference_searchBreakingNews"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:layout_marginEnd="26dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
             android:background="#00000000"
+            android:contentDescription="@string/content_description"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_search"
-            android:contentDescription="@string/content_description" />
+            app:srcCompat="@drawable/ic_search" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

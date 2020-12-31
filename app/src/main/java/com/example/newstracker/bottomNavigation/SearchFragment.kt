@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -28,14 +29,15 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 
 class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnItemClickedListener,
-    SearchPreferenceSwipeListener.DeleteSwipe {
+    SearchPreferenceSwipeListener.DeleteSwipe, View.OnClickListener {
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var searchPreferenceVM: SearchPreferenceVM
     private lateinit var myAdapter: SearchPreferenceAdapter
-    private lateinit var anotherView: View
+
+    private lateinit var navController: NavController
 
     private val TAG = "SearchFragment"
 
@@ -44,22 +46,19 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSearchBinding.inflate(inflater, container, false)
-        anotherView = binding.root
-
         initializeRecyclerView()
         // Redirect Fragment into Fragment with adding capability
-        binding.searchFragmentAdd.setOnClickListener {
-            Navigation.findNavController(anotherView)
-                .navigate(R.id.searchPreferences_addNewSearchPreference)
-        }
         val itemSwipeListener = SearchPreferenceSwipeListener(this)
-
         val itemTouchHelper = ItemTouchHelper(itemSwipeListener)
         itemTouchHelper.attachToRecyclerView(binding.searchFragmentRecyclerView)
-
-        return anotherView
+        return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        navController = Navigation.findNavController(view)
+        binding.searchFragmentAdd.setOnClickListener(this)
+    }
 
     private fun initializeRecyclerView() {
         Log.i(TAG, "initializeRecyclerView: ")
@@ -68,19 +67,19 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
         myAdapter = SearchPreferenceAdapter(this)
         binding.searchFragmentRecyclerView.apply {
             adapter = myAdapter
-            layoutManager = LinearLayoutManager(requireContext())
-            val customDecorator = RecyclerViewDecorator(5, 0)
+            layoutManager = LinearLayoutManager(requireActivity())
+            val customDecorator = RecyclerViewDecorator(6, 6)
             addItemDecoration(customDecorator)
             searchPreferenceVM.retrieveAllPreference()
-                .observe(requireActivity(), { myAdapter.setSearchPreferences(it) })
+                .observe(viewLifecycleOwner, { myAdapter.setSearchPreferences(it) })
         }
     }
 
     override fun searchBreakingNews(pref: PreferenceEntity) {
         Log.i(TAG, "onItemClicked: ")
-        val list = arrayOf(pref.label, pref.category, pref.country, pref.keyword, pref.language)
-        val bundle = bundleOf(ARGUMENT_BUNDLE to list)
-        anotherView.findNavController().navigate(R.id.searchPreferences_newsArticles, bundle)
+//        val list = arrayOf(pref.label, pref.category, pref.country, pref.keyword, pref.language)
+        val bundle = bundleOf(ARGUMENT_BUNDLE to pref)
+        navController.navigate(R.id.searchPreferences_newsArticles, bundle)
     }
 
     override fun preferenceDetails(pref: PreferenceEntity) {
@@ -95,7 +94,7 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
 
 
     private fun checkDelete(label: String?, index: Int) {
-        MaterialAlertDialogBuilder(anotherView.context)
+        MaterialAlertDialogBuilder(requireView().context)
             .apply {
                 setTitle(resources.getString(R.string.dialog_delete_title))
                 setMessage((resources.getString(R.string.dialog_delete_message, label)))
@@ -125,6 +124,10 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
         checkDelete(label, index)
         myAdapter.notifyDataSetChanged()
     }
+
+    override fun onClick(v: View?) {
+        when (v!!.id) {
+            R.id.searchFragmentAdd -> navController.navigate(R.id.searchPreferences_addNewSearchPreference)
+        }
+    }
 }
-
-

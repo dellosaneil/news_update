@@ -53,4 +53,12 @@
     <string name="delete_dialog_message">Would you like to delete:\n<b>%1$s</b></string>
 
 
+    <string name="settings_page_count_title">Page Size</string>
+    <string name="settings_page_count_summary">Maximum number of articles</string>
+    <string name="settings_clear_saved_articles">Clear Saved Articles</string>
+    <string name="settings_clear_saved_preferences">Clear Saved Preferences</string>
+    <string name="settings_clear_database">Clear Database</string>
+    <string name="settings_adjustable_settings">Application Preferences</string>
+
+
 </resources>
