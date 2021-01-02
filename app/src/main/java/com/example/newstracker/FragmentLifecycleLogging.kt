@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 
-open class FragmentLifecycleLogging : Fragment() {
+abstract class FragmentLifecycleLogging : Fragment() {
 
     private val TAG = this.javaClass.simpleName
 

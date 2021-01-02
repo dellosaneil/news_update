@@ -44,6 +44,7 @@
 
     <string name="save_article_success">Article Saved</string>
     <string name="save_article_error">Article Already in Database</string>
+    <string name="save_article_cancelled">Saving Cancelled</string>
 
     <string name="saved_articles_text_view">Saved Articles</string>
 
@@ -60,5 +61,8 @@
     <string name="settings_clear_database">Clear Database</string>
     <string name="settings_adjustable_settings">Application Preferences</string>
 
-
+    <string name="dialog_save_article_title">Saving an Article</string>
+    <string name="dialog_save_article_message">Would you like to save:\n%1$s</string>
+    <string name="dialog_save_article_positive">Save</string>
+    <string name="dialog_save_article_negative">Cancel</string>
 </resources>

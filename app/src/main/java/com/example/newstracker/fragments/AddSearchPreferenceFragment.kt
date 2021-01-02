@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import com.example.newstracker.FragmentLifecycleLogging
@@ -15,10 +16,9 @@ import com.example.newstracker.databinding.FragmentAddSearchPreferenceBinding
 import com.example.newstracker.repository.DatabaseRepository
 import com.example.newstracker.room.NewsTrackerDatabase
 import com.example.newstracker.room.entity.PreferenceEntity
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
 class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
@@ -27,6 +27,8 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
     private val TAG = "UserNewsPreference"
     private var _binding: FragmentAddSearchPreferenceBinding? = null
     private val binding get() = _binding!!
+    private val scope = CoroutineScope(IO)
+
 
 
     override fun onCreateView(
@@ -105,7 +107,7 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
         categoryCode: String,
         view: View
     ) {
-        lifecycleScope.launch(Dispatchers.IO) {
+        scope.launch {
             val newPreference = PreferenceEntity(
                 preferenceLabel,
                 categoryCode,
@@ -134,6 +136,7 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
 
     override fun onDestroy() {
         super.onDestroy()
+        scope.cancel()
         Log.i(TAG, "onDestroy: ")
     }
 

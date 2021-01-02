@@ -20,6 +20,8 @@ import com.example.newstracker.recyclerView.RecyclerViewDecorator
 import com.example.newstracker.recyclerView.SavedArticlesAdapter
 import com.example.newstracker.viewModel.savedArticles.SavedArticlesVM
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
 
 class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.OnOpenLinkListener,
     SearchPreferenceSwipeListener.DeleteSwipe {
@@ -47,7 +49,7 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
     private fun initializeRecyclerView() {
 
         Log.i(TAG, "initializeRecyclerView: ")
-        binding.savedArticlesRecyclerView.apply {
+        binding.savedArticlesRecyclerView.run {
             setHasFixedSize(true)
             val decorator = RecyclerViewDecorator(6, 6)
             addItemDecoration(decorator)

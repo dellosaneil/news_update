@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -29,14 +28,16 @@ import com.example.newstracker.room.dao.SavedArticlesDao
 import com.example.newstracker.room.entity.PreferenceEntity
 import com.example.newstracker.room.entity.SavedArticlesEntity
 import com.example.newstracker.viewModel.result.ResultVM
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import retrofit2.Response
 
-class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListener, ResultAdapter.SaveArticleListener {
+class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListener,
+    ResultAdapter.SaveArticleListener {
 
+    private val scope = CoroutineScope(IO)
 
     private var _binding: FragmentResultsBinding? = null
     private val binding get() = _binding!!
@@ -116,7 +117,7 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
     private fun initializeRecyclerView() {
         Log.i(TAG, "initializeRecyclerView: ")
         myAdapter = ResultAdapter(this, this)
-        binding.newsArticleRecyclerView.apply {
+        binding.newsArticleRecyclerView.run {
             setHasFixedSize(true)
             val decorator = RecyclerViewDecorator(6, 6)
             addItemDecoration(decorator)
@@ -157,6 +158,7 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
     override fun onDestroy() {
         super.onDestroy()
         viewModel.clearAllData()
+        scope.cancel()
     }
 
     override fun onDestroyView() {
@@ -170,28 +172,55 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
         startActivity(intent)
     }
 
-    @SuppressLint("ShowToast")
     override fun saveArticleListener(article: SavedArticlesEntity) {
-        var message: String
-        lifecycleScope.launch(IO) {
+        scope.launch {
             val isInDatabase = savedArticlesDao.checkArticle(article.articleTitle)
-            if(isInDatabase == 0){
-                message = resources.getString(R.string.save_article_success)
-                savedArticlesDao.saveArticle(article)
-            }else{
-                message = resources.getString(R.string.save_article_error)
-            }
-            withContext(Main){
-                toast = if(toast != null){
-                    toast?.cancel()
-                    Toast.makeText(requireActivity(), message, Toast.LENGTH_LONG)
-                }else{
-                    Toast.makeText(requireActivity(), message, Toast.LENGTH_LONG)
+            if (isInDatabase == 0) {
+                withContext(Main) {
+                    saveAlertDialog(article)
                 }
-                toast?.show()
+            } else {
+                withContext(Main) {
+                    showSavingResult(resources.getString(R.string.save_article_error))
+                }
+            }
+
+        }
+    }
+
+    private fun saveAlertDialog(article: SavedArticlesEntity) {
+        view?.context?.let {
+            MaterialAlertDialogBuilder(it).run {
+                setTitle(resources.getString(R.string.dialog_save_article_title))
+                setMessage(
+                    resources.getString(
+                        R.string.dialog_save_article_message,
+                        article.articleTitle
+                    )
+                )
+                setPositiveButton(resources.getString(R.string.dialog_save_article_positive)) { _, _ ->
+                    scope.launch {
+                        savedArticlesDao.saveArticle(article)
+                    }
+                    showSavingResult(resources.getString(R.string.save_article_success))
+                }
+                setNegativeButton(resources.getString(R.string.dialog_save_article_negative)) { _, _ ->
+                    showSavingResult(resources.getString(R.string.save_article_cancelled))
+                }
+                setCancelable(false)
+                show()
             }
         }
     }
 
-
+    @SuppressLint("ShowToast")
+    private fun showSavingResult(message: String) {
+        toast = if (toast != null) {
+            toast?.cancel()
+            Toast.makeText(requireActivity(), message, Toast.LENGTH_LONG)
+        } else {
+            Toast.makeText(requireActivity(), message, Toast.LENGTH_LONG)
+        }
+        toast?.show()
+    }
 }

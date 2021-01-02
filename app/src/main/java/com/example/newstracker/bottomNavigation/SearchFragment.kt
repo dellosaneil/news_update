@@ -7,10 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.newstracker.Constants.Companion.ARGUMENT_BUNDLE
@@ -25,7 +23,9 @@ import com.example.newstracker.recyclerView.SearchPreferenceAdapter
 import com.example.newstracker.room.entity.PreferenceEntity
 import com.example.newstracker.viewModel.searchPreference.SearchPreferenceVM
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnItemClickedListener,
@@ -36,7 +36,7 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
 
     private lateinit var searchPreferenceVM: SearchPreferenceVM
     private lateinit var myAdapter: SearchPreferenceAdapter
-
+    private val scope = CoroutineScope(IO)
     private lateinit var navController: NavController
 
     private val TAG = "SearchFragment"
@@ -65,7 +65,7 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
         searchPreferenceVM =
             ViewModelProvider(requireActivity()).get(SearchPreferenceVM::class.java)
         myAdapter = SearchPreferenceAdapter(this)
-        binding.searchFragmentRecyclerView.apply {
+        binding.searchFragmentRecyclerView.run {
             adapter = myAdapter
             layoutManager = LinearLayoutManager(requireActivity())
             val customDecorator = RecyclerViewDecorator(6, 6)
@@ -77,7 +77,6 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
 
     override fun searchBreakingNews(pref: PreferenceEntity) {
         Log.i(TAG, "onItemClicked: ")
-//        val list = arrayOf(pref.label, pref.category, pref.country, pref.keyword, pref.language)
         val bundle = bundleOf(ARGUMENT_BUNDLE to pref)
         navController.navigate(R.id.searchPreferences_newsArticles, bundle)
     }
@@ -90,6 +89,11 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        scope.cancel()
     }
 
 
@@ -114,7 +118,7 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
     }
 
     private fun deletePreference(label: String?) {
-        lifecycleScope.launch(IO) {
+        scope.launch(IO) {
             label?.let { searchPreferenceVM.deletePreference(it) }
         }
     }
@@ -122,7 +126,7 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
     override fun swipePreferenceIndex(index: Int) {
         val label = searchPreferenceVM.retrieveAllPreference().value?.get(index)?.label
         checkDelete(label, index)
-        myAdapter.notifyDataSetChanged()
+
     }
 
     override fun onClick(v: View?) {
