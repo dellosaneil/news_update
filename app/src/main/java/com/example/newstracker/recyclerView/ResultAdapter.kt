@@ -1,7 +1,6 @@
 package com.example.newstracker.recyclerView
 
 import android.graphics.Color
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,12 +16,11 @@ class ResultAdapter(val linkListener : OpenLinkListener, val saveListener : Save
     private var newsArticles: List<Article>? = null
     private val TAG = "ResultAdapter"
 
+
     fun setNewsArticles(newsResponse: List<Article>) {
         newsArticles = newsResponse
-        Log.i(TAG, "setNewsArticles: ${newsArticles!!.size}")
         notifyDataSetChanged()
     }
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ResultViewHolder {
         val binding = ListLayoutResultsBinding.inflate(

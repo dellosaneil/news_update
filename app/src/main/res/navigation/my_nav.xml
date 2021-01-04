@@ -18,7 +18,7 @@
 
         <action
             android:id="@+id/searchPreferences_addNewSearchPreference"
-            app:destination="@id/userNewsPreference" />
+            app:destination="@id/addUserPreference" />
         <action
             android:id="@+id/searchPreferences_newsArticles"
             app:destination="@id/newsArticlesFragment">
@@ -33,7 +33,7 @@
         android:label="fragment_settings_fragment"
         tools:layout="@layout/fragment_settings" />
     <fragment
-        android:id="@+id/userNewsPreference"
+        android:id="@+id/addUserPreference"
         android:name="com.example.newstracker.fragments.AddSearchPreferenceFragment"
         android:label="fragment_user_news_preference"
         tools:layout="@layout/fragment_add_search_preference">

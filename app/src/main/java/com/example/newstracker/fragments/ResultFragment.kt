@@ -99,10 +99,12 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
         Log.i(TAG, "updateRecyclerView: ")
         if (articles?.isSuccessful == true) {
             articles.body()?.articles?.let { result ->
-                val temp = filterArticles(result)
+                val uniqueArticles = filterArticles(result)
                 myAdapter.setNewsArticles(
-                    temp
+                    uniqueArticles
                 )
+                val message = "Number of Articles: ${uniqueArticles.size}"
+                toastHandler(message)
             }
         } else {
             Log.i(TAG, "Error Body: ${articles?.message()}")
@@ -181,7 +183,7 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
                 }
             } else {
                 withContext(Main) {
-                    showSavingResult(resources.getString(R.string.save_article_error))
+                    toastHandler(resources.getString(R.string.save_article_error))
                 }
             }
 
@@ -202,10 +204,10 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
                     scope.launch {
                         savedArticlesDao.saveArticle(article)
                     }
-                    showSavingResult(resources.getString(R.string.save_article_success))
+                    toastHandler(resources.getString(R.string.save_article_success))
                 }
                 setNegativeButton(resources.getString(R.string.dialog_save_article_negative)) { _, _ ->
-                    showSavingResult(resources.getString(R.string.save_article_cancelled))
+                    toastHandler(resources.getString(R.string.save_article_cancelled))
                 }
                 setCancelable(false)
                 show()
@@ -214,7 +216,7 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
     }
 
     @SuppressLint("ShowToast")
-    private fun showSavingResult(message: String) {
+    private fun toastHandler(message: String) {
         toast = if (toast != null) {
             toast?.cancel()
             Toast.makeText(requireActivity(), message, Toast.LENGTH_LONG)

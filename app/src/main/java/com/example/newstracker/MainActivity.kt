@@ -1,6 +1,8 @@
 package com.example.newstracker
 
+import android.opengl.Visibility
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -29,5 +31,13 @@ class MainActivity : AppCompatActivity() {
     private fun initializeBottomNavigation() {
         val navController = findNavController(R.id.fragment)
         binding.bottomNavigation.setupWithNavController(navController)
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when(destination.id){
+                R.id.addUserPreference, R.id.newsArticlesFragment -> {
+                    binding.bottomNavigation.visibility = View.GONE
+                }
+                else -> binding.bottomNavigation.visibility = View.VISIBLE
+            }
+        }
     }
 }
