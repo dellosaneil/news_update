@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.example.newstracker.FragmentLifecycleLogging
 import com.example.newstracker.R
@@ -28,7 +29,7 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
     private var _binding: FragmentAddSearchPreferenceBinding? = null
     private val binding get() = _binding!!
     private val scope = CoroutineScope(IO)
-
+    private lateinit var navController: NavController
 
 
     override fun onCreateView(
@@ -36,18 +37,27 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentAddSearchPreferenceBinding.inflate(inflater, container, false)
-        val view = binding.root
+        initializeCategoryDropDown()
+        initializeLanguageDropDown()
+        initializeCountryDropDown()
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         val dao = NewsTrackerDatabase.getDatabase(view.context).preferenceDao()
         repository = DatabaseRepository(dao)
 
-        initializeCategoryDropDown()
-        initializeLanguageDropDown()
-        initializeCountryDropDown()
-
+        navController = Navigation.findNavController(view)
         binding.newsSaveButton.setOnClickListener { retrieveValue(view) }
-        return view
+        binding.topAppBarAddPreference.setNavigationOnClickListener {
+            navController.navigateUp()
+        }
+        binding.topAppBarAddPreference.title = getString(R.string.user_add_preference_title)
+
     }
+
 
     private fun indexNumber(key: String, array: Array<String>) = array.indexOf(key)
 

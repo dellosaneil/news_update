@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavigation.setupWithNavController(navController)
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when(destination.id){
-                R.id.addUserPreference, R.id.newsArticlesFragment -> {
+                R.id.addUserPreference, R.id.newsArticlesFragment, R.id.webViewFragment -> {
                     binding.bottomNavigation.visibility = View.GONE
                 }
                 else -> binding.bottomNavigation.visibility = View.VISIBLE

@@ -1,27 +1,26 @@
 package com.example.newstracker.bottomNavigation
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.text.parseAsHtml
+import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.newstracker.Constants
 import com.example.newstracker.FragmentLifecycleLogging
 import com.example.newstracker.R
-import com.example.newstracker.WebViewActivity
 import com.example.newstracker.callbackListener.SearchPreferenceSwipeListener
 import com.example.newstracker.databinding.FragmentSavedBinding
 import com.example.newstracker.recyclerView.RecyclerViewDecorator
 import com.example.newstracker.recyclerView.SavedArticlesAdapter
 import com.example.newstracker.viewModel.savedArticles.SavedArticlesVM
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.IO
 
 class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.OnOpenLinkListener,
     SearchPreferenceSwipeListener.DeleteSwipe {
@@ -31,6 +30,7 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
     private lateinit var viewModel: SavedArticlesVM
     private val myAdapter = SavedArticlesAdapter(this)
     private val TAG = "SavedArticlesFragment"
+    private lateinit var navController: NavController
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,6 +45,12 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
         itemTouchHelper.attachToRecyclerView(binding.savedArticlesRecyclerView)
         return binding.root
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        navController = Navigation.findNavController(view)
+    }
+
 
     private fun initializeRecyclerView() {
 
@@ -83,9 +89,10 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
     }
 
     override fun openLinkListener(url: String) {
-        val intent = Intent(requireActivity(), WebViewActivity::class.java)
-        intent.putExtra(Constants.URL_LINK_EXTRA, url)
-        startActivity(intent)
+        Toast.makeText(requireContext(), "Redirecting...", Toast.LENGTH_LONG).show()
+        val bundle = bundleOf(Constants.URL_LINK_EXTRA to url)
+        navController.navigate(R.id.savedArticleFragment_webViewFragment, bundle)
+
     }
 
     override fun swipePreferenceIndex(index: Int) {

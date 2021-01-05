@@ -9,7 +9,11 @@
         android:id="@+id/saved_article_fragment"
         android:name="com.example.newstracker.bottomNavigation.SavedArticlesFragment"
         android:label="fragment_saved_article_fragment"
-        tools:layout="@layout/fragment_saved" />
+        tools:layout="@layout/fragment_saved">
+        <action
+            android:id="@+id/savedArticleFragment_webViewFragment"
+            app:destination="@id/webViewFragment" />
+    </fragment>
     <fragment
         android:id="@+id/searchPreferences"
         android:name="com.example.newstracker.bottomNavigation.SearchFragment"
@@ -22,9 +26,9 @@
         <action
             android:id="@+id/searchPreferences_newsArticles"
             app:destination="@id/newsArticlesFragment">
-
-            <argument android:name="bundle"
-                app:argType="com.example.newstracker.room.entity.PreferenceEntity"/>
+            <argument
+                android:name="bundle"
+                app:argType="com.example.newstracker.room.entity.PreferenceEntity" />
         </action>
     </fragment>
     <fragment
@@ -47,5 +51,14 @@
         android:id="@+id/newsArticlesFragment"
         android:name="com.example.newstracker.fragments.ResultFragment"
         android:label="fragment_news_articles"
-        tools:layout="@layout/fragment_results" />
+        tools:layout="@layout/fragment_results">
+        <action
+            android:id="@+id/newsArticlesFragment_webViewFragment"
+            app:destination="@id/webViewFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/webViewFragment"
+        android:name="com.example.newstracker.WebViewFragment"
+        android:label="fragment_web_view"
+        tools:layout="@layout/fragment_web_view" />
 </navigation>

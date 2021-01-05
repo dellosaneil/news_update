@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
@@ -17,7 +18,7 @@ import com.example.newstracker.Constants.Companion.ARGUMENT_BUNDLE
 import com.example.newstracker.Constants.Companion.URL_LINK_EXTRA
 import com.example.newstracker.FragmentLifecycleLogging
 import com.example.newstracker.R
-import com.example.newstracker.WebViewActivity
+import com.example.newstracker.WebViewFragment
 import com.example.newstracker.databinding.FragmentResultsBinding
 import com.example.newstracker.recyclerView.RecyclerViewDecorator
 import com.example.newstracker.recyclerView.ResultAdapter
@@ -169,9 +170,8 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
     }
 
     override fun onPressLinkListener(urlLink: String) {
-        val intent = Intent(requireActivity(), WebViewActivity::class.java)
-        intent.putExtra(URL_LINK_EXTRA, urlLink)
-        startActivity(intent)
+        val bundle = bundleOf(URL_LINK_EXTRA to urlLink)
+        navController.navigate(R.id.newsArticlesFragment_webViewFragment, bundle)
     }
 
     override fun saveArticleListener(article: SavedArticlesEntity) {
