@@ -2,13 +2,16 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+    id 'kotlin-parcelize'
 }
+
 
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.2"
     android.defaultConfig.vectorDrawables.useSupportLibrary = true
-    apply plugin: 'kotlin-parcelize'
+
 
     defaultConfig {
         applicationId "com.example.newstracker"
@@ -21,7 +24,8 @@ android {
 
         javaCompileOptions {
             annotationProcessorOptions {
-                arguments = ["room.incremental": "true"]
+                arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
+//                arguments = ["room.incremental": "true"]
             }
         }
 
@@ -42,7 +46,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
 }
 
@@ -89,5 +93,27 @@ dependencies {
     //Preference Screen
     def preference_version = "1.1.1"
     implementation "androidx.preference:preference-ktx:$preference_version"
+
+    // Dagger Core
+    implementation "com.google.dagger:dagger:2.28"
+    kapt "com.google.dagger:dagger-compiler:2.28"
+
+    // Dagger Android
+    api 'com.google.dagger:dagger-android:2.27'
+    api 'com.google.dagger:dagger-android-support:2.27'
+    kapt 'com.google.dagger:dagger-android-processor:2.27'
+
+    // Activity KTX for viewModels()
+    implementation "androidx.activity:activity-ktx:1.1.0"
+
+    //Dagger - Hilt
+    implementation "com.google.dagger:hilt-android:2.28-alpha"
+    kapt "com.google.dagger:hilt-android-compiler:2.28-alpha"
+
+    implementation "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha02"
+    kapt "androidx.hilt:hilt-compiler:1.0.0-alpha02"
+
+
+
 
 }

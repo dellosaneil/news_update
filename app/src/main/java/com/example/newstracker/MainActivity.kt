@@ -11,7 +11,10 @@ import com.example.newstracker.databinding.ActivityMainBinding
 import com.example.newstracker.repository.RetrofitRepository
 import com.example.newstracker.viewModel.result.ResultVM
 import com.example.newstracker.viewModel.result.ResultVMFactory
+import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.HiltAndroidApp
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding

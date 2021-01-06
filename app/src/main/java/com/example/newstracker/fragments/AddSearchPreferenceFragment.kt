@@ -7,24 +7,25 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
-import androidx.lifecycle.LifecycleCoroutineScope
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.example.newstracker.FragmentLifecycleLogging
 import com.example.newstracker.R
 import com.example.newstracker.databinding.FragmentAddSearchPreferenceBinding
-import com.example.newstracker.repository.DatabaseRepository
+import com.example.newstracker.repository.PreferenceRepository
 import com.example.newstracker.room.NewsTrackerDatabase
 import com.example.newstracker.room.entity.PreferenceEntity
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
 
-    private lateinit var repository: DatabaseRepository
+    @Inject
+    lateinit var repository: PreferenceRepository
     private val TAG = "UserNewsPreference"
     private var _binding: FragmentAddSearchPreferenceBinding? = null
     private val binding get() = _binding!!
@@ -45,10 +46,6 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val dao = NewsTrackerDatabase.getDatabase(view.context).preferenceDao()
-        repository = DatabaseRepository(dao)
-
         navController = Navigation.findNavController(view)
         binding.newsSaveButton.setOnClickListener { retrieveValue(view) }
         binding.topAppBarAddPreference.setNavigationOnClickListener {

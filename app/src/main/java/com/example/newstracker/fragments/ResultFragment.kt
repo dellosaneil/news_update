@@ -1,7 +1,6 @@
 package com.example.newstracker.fragments
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -18,10 +17,10 @@ import com.example.newstracker.Constants.Companion.ARGUMENT_BUNDLE
 import com.example.newstracker.Constants.Companion.URL_LINK_EXTRA
 import com.example.newstracker.FragmentLifecycleLogging
 import com.example.newstracker.R
-import com.example.newstracker.WebViewFragment
 import com.example.newstracker.databinding.FragmentResultsBinding
 import com.example.newstracker.recyclerView.RecyclerViewDecorator
 import com.example.newstracker.recyclerView.ResultAdapter
+import com.example.newstracker.repository.SavedArticlesRepository
 import com.example.newstracker.retrofit.dataclass.Article
 import com.example.newstracker.retrofit.dataclass.NewsResponse
 import com.example.newstracker.room.NewsTrackerDatabase
@@ -30,11 +29,15 @@ import com.example.newstracker.room.entity.PreferenceEntity
 import com.example.newstracker.room.entity.SavedArticlesEntity
 import com.example.newstracker.viewModel.result.ResultVM
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import retrofit2.Response
+import javax.inject.Inject
 
+
+@AndroidEntryPoint
 class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListener,
     ResultAdapter.SaveArticleListener {
 
@@ -42,9 +45,11 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
 
     private var _binding: FragmentResultsBinding? = null
     private val binding get() = _binding!!
-    private lateinit var savedArticlesDao: SavedArticlesDao
 
-    private val viewModel: ResultVM by activityViewModels()
+    @Inject
+    lateinit var savedArticlesDao: SavedArticlesRepository
+
+    private val resultViewModel: ResultVM by activityViewModels()
     private lateinit var myAdapter: ResultAdapter
     private lateinit var navController: NavController
 
@@ -71,7 +76,6 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        savedArticlesDao = NewsTrackerDatabase.getDatabase(view.context).savedArticlesDao()
         navController = Navigation.findNavController(view)
 
         binding.topAppBar.setNavigationOnClickListener {
@@ -133,15 +137,15 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
     //   Put data into view model
     private fun searchArticlesWithPreference(prefs: PreferenceEntity) {
         Log.i(TAG, "searchArticlesWithPreference: ")
-        viewModel.placePreferences(prefs)
-        viewModel.retrieveArticles()
+        resultViewModel.placePreferences(prefs)
+        resultViewModel.retrieveArticles()
     }
 
     //    Assign observer to LiveData
     private fun observeData() {
         Log.i(TAG, "observeData: ")
-        viewModel.getArticles()?.observe(viewLifecycleOwner, articleObserver)
-        viewModel.checkFinished()?.observe(viewLifecycleOwner, visibilityObserver)
+        resultViewModel.getArticles()?.observe(viewLifecycleOwner, articleObserver)
+        resultViewModel.checkFinished()?.observe(viewLifecycleOwner, visibilityObserver)
     }
 
     //    Filter data to lessen probability of having the same article
@@ -160,7 +164,7 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
 
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.clearAllData()
+        resultViewModel.clearAllData()
         scope.cancel()
     }
 

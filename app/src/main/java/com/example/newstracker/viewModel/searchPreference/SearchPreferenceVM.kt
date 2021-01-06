@@ -1,23 +1,15 @@
 package com.example.newstracker.viewModel.searchPreference
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
-import com.example.newstracker.repository.DatabaseRepository
-import com.example.newstracker.room.NewsTrackerDatabase
+import androidx.lifecycle.ViewModel
+import com.example.newstracker.repository.PreferenceRepository
 import com.example.newstracker.room.entity.PreferenceEntity
 
 
-class SearchPreferenceVM(application: Application) : AndroidViewModel(application) {
+class SearchPreferenceVM @ViewModelInject constructor(private val repository: PreferenceRepository) : ViewModel() {
 
-    private val allPreferences : LiveData<List<PreferenceEntity>>
-    private val repository : DatabaseRepository
-
-    init{
-        val dao = NewsTrackerDatabase.getDatabase(application).preferenceDao()
-        repository = DatabaseRepository(dao)
-        allPreferences = repository.allData
-    }
+    private val allPreferences : LiveData<List<PreferenceEntity>> = repository.getAllPreferences()
 
     fun retrieveAllPreference() = allPreferences
 

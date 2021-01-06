@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
@@ -23,18 +24,20 @@ import com.example.newstracker.recyclerView.SearchPreferenceAdapter
 import com.example.newstracker.room.entity.PreferenceEntity
 import com.example.newstracker.viewModel.searchPreference.SearchPreferenceVM
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnItemClickedListener,
     SearchPreferenceSwipeListener.DeleteSwipe, View.OnClickListener {
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var searchPreferenceVM: SearchPreferenceVM
+    private val searchPreferenceVM: SearchPreferenceVM by viewModels()
     private lateinit var myAdapter: SearchPreferenceAdapter
     private val scope = CoroutineScope(IO)
     private lateinit var navController: NavController
@@ -62,8 +65,6 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
 
     private fun initializeRecyclerView() {
         Log.i(TAG, "initializeRecyclerView: ")
-        searchPreferenceVM =
-            ViewModelProvider(requireActivity()).get(SearchPreferenceVM::class.java)
         myAdapter = SearchPreferenceAdapter(this)
         binding.searchFragmentRecyclerView.run {
             adapter = myAdapter

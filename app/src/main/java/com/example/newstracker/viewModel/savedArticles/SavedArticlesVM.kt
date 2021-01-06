@@ -1,23 +1,19 @@
 package com.example.newstracker.viewModel.savedArticles
 
-import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.newstracker.room.NewsTrackerDatabase
-import com.example.newstracker.room.dao.SavedArticlesDao
+import com.example.newstracker.repository.SavedArticlesRepository
 import com.example.newstracker.room.entity.SavedArticlesEntity
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class SavedArticlesVM(application: Application) : AndroidViewModel(application) {
-
-    private var savedArticlesDao: SavedArticlesDao? =
-        NewsTrackerDatabase.getDatabase(application).savedArticlesDao()
+class SavedArticlesVM @ViewModelInject constructor(private val repository: SavedArticlesRepository) : ViewModel() {
 
     private var isFinishedLoading :MutableLiveData<Boolean> = MutableLiveData(false)
 
@@ -37,13 +33,13 @@ class SavedArticlesVM(application: Application) : AndroidViewModel(application) 
     fun isFinished() = isFinishedLoading
 
     private fun setSavedArticles() {
-        savedArticles = savedArticlesDao?.getAllSavedArticles()
+        savedArticles = repository.getAllSavedArticles()
     }
 
     fun getSavedArticles() = savedArticles
 
     fun deleteArticle(title : String){
-        viewModelScope.launch(IO) { savedArticlesDao?.deleteArticle(title) }
+        viewModelScope.launch(IO) { repository.deleteArticle(title) }
     }
 
 

@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.os.bundleOf
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -21,13 +21,17 @@ import com.example.newstracker.recyclerView.RecyclerViewDecorator
 import com.example.newstracker.recyclerView.SavedArticlesAdapter
 import com.example.newstracker.viewModel.savedArticles.SavedArticlesVM
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dagger.hilt.android.AndroidEntryPoint
 
+
+@AndroidEntryPoint
 class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.OnOpenLinkListener,
     SearchPreferenceSwipeListener.DeleteSwipe {
 
     private var _binding: FragmentSavedBinding? = null
     private val binding get() = _binding!!
-    private lateinit var viewModel: SavedArticlesVM
+    private val savedArticleViewModel: SavedArticlesVM by viewModels()
+
     private val myAdapter = SavedArticlesAdapter(this)
     private val TAG = "SavedArticlesFragment"
     private lateinit var navController: NavController
@@ -37,7 +41,6 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSavedBinding.inflate(layoutInflater)
-        viewModel = ViewModelProvider(requireActivity()).get(SavedArticlesVM::class.java)
         initializeRecyclerView()
 
         val itemSwipeListener = SearchPreferenceSwipeListener(this)
@@ -68,7 +71,7 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
 
     private fun observeViewModel() {
         Log.i(TAG, "observeViewModel: ")
-        viewModel.isFinished().observe(viewLifecycleOwner, {
+        savedArticleViewModel.isFinished().observe(viewLifecycleOwner, {
             if (it) {
                 visibilityControl()
                 startObserveForChanges()
@@ -77,7 +80,7 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
     }
 
     private fun startObserveForChanges() {
-        viewModel.getSavedArticles()?.observe(viewLifecycleOwner, {
+        savedArticleViewModel.getSavedArticles()?.observe(viewLifecycleOwner, {
             Log.i(TAG, "observeViewModel: OBSERVE")
             myAdapter.setSavedArticles(it)
         })
@@ -96,14 +99,14 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
     }
 
     override fun swipePreferenceIndex(index: Int) {
-        val deletedArticle = viewModel.getSavedArticles()?.value?.get(index)
+        val deletedArticle = savedArticleViewModel.getSavedArticles()?.value?.get(index)
         val title = deletedArticle?.articleTitle
 
         MaterialAlertDialogBuilder(requireContext()).apply {
             setTitle(getString(R.string.delete_dialog_title))
             setMessage(getString(R.string.delete_dialog_message, title))
             setPositiveButton(getString(R.string.dialog_delete_confirm)) { _, _ ->
-                title?.let { viewModel.deleteArticle(it) }
+                title?.let { savedArticleViewModel.deleteArticle(it) }
             }
             setNegativeButton(getString(R.string.dialog_delete_cancel)) {_,_ ->
                 myAdapter.notifyItemChanged(index)

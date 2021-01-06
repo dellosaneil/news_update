@@ -60,6 +60,7 @@ class WebViewFragment : FragmentLifecycleLogging() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        binding.webView.destroy()
         _binding = null
     }
 
@@ -69,9 +70,8 @@ class WebViewFragment : FragmentLifecycleLogging() {
             return false
         }
 
-        @SuppressLint("ShowToast")
-        override fun onPageFinished(view: WebView, url: String) {
-            super.onPageFinished(view, url)
+        override fun onPageCommitVisible(view: WebView?, url: String?) {
+            super.onPageCommitVisible(view, url)
             binding.webViewProgressBar.visibility = View.GONE
             binding.webView.visibility = View.VISIBLE
         }
