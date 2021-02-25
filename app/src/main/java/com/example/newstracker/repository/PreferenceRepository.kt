@@ -1,12 +1,10 @@
 package com.example.newstracker.repository
 
-import androidx.lifecycle.LiveData
 import com.example.newstracker.room.dao.PreferenceDao
 import com.example.newstracker.room.entity.PreferenceEntity
 import javax.inject.Inject
 
 class PreferenceRepository @Inject constructor(private val preferenceDao: PreferenceDao) {
-
 
     fun getAllPreferences() = preferenceDao.getAllSavedPreference()
 

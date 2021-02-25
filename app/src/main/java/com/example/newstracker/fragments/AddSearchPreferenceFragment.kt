@@ -1,19 +1,17 @@
 package com.example.newstracker.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
-import androidx.navigation.NavController
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import com.example.newstracker.FragmentLifecycleLogging
 import com.example.newstracker.R
 import com.example.newstracker.databinding.FragmentAddSearchPreferenceBinding
 import com.example.newstracker.repository.PreferenceRepository
-import com.example.newstracker.room.NewsTrackerDatabase
 import com.example.newstracker.room.entity.PreferenceEntity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
@@ -26,11 +24,8 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
 
     @Inject
     lateinit var repository: PreferenceRepository
-    private val TAG = "UserNewsPreference"
     private var _binding: FragmentAddSearchPreferenceBinding? = null
     private val binding get() = _binding!!
-    private val scope = CoroutineScope(IO)
-    private lateinit var navController: NavController
 
 
     override fun onCreateView(
@@ -38,21 +33,23 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentAddSearchPreferenceBinding.inflate(inflater, container, false)
-        initializeCategoryDropDown()
-        initializeLanguageDropDown()
-        initializeCountryDropDown()
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        navController = Navigation.findNavController(view)
+        initializeCategoryDropDown()
+        initializeLanguageDropDown()
+        initializeCountryDropDown()
         binding.newsSaveButton.setOnClickListener { retrieveValue(view) }
+        setUpNavigateUp(view)
+    }
+
+    private fun setUpNavigateUp(view: View) {
         binding.topAppBarAddPreference.setNavigationOnClickListener {
-            navController.navigateUp()
+            Navigation.findNavController(view).navigateUp()
         }
         binding.topAppBarAddPreference.title = getString(R.string.user_add_preference_title)
-
     }
 
 
@@ -114,7 +111,7 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
         categoryCode: String,
         view: View
     ) {
-        scope.launch {
+        lifecycleScope.launch(IO) {
             val newPreference = PreferenceEntity(
                 preferenceLabel,
                 categoryCode,
@@ -123,17 +120,14 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
                 languageCode
             )
 
-            Log.i(TAG, "saveToRoomDatabase: ")
             val isUpdate = repository.checkLabel(preferenceLabel)
-            Log.i(TAG, "saveToRoomDatabase: $isUpdate")
 
-            if (isUpdate == 0) {
-                Log.i(TAG, "saveToRoomDatabase:Update ")
-                repository.addNewPreference(newPreference)
-                Navigation.findNavController(view)
-                    .navigate(R.id.addNewSearchPreference_searchPreferences)
-            } else {
-                withContext(Main) {
+            withContext(Main){
+                if (isUpdate == 0) {
+                    repository.addNewPreference(newPreference)
+                    Navigation.findNavController(view)
+                        .navigate(R.id.addNewSearchPreference_searchPreferences)
+                } else {
                     binding.newsLabel.error =
                         resources.getString(R.string.user_add_preference_unique)
                 }
@@ -141,15 +135,8 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        scope.cancel()
-        Log.i(TAG, "onDestroy: ")
-    }
-
 
     private fun initializeCountryDropDown() {
-        Log.i(TAG, "initializeCountryDropDown: ")
         val items = resources.getStringArray(R.array.country_list_keys)
         val adapter = ArrayAdapter(requireContext(), R.layout.list_item, items)
         (binding.newsCountry.editText as? AutoCompleteTextView)
@@ -157,7 +144,6 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
     }
 
     private fun initializeLanguageDropDown() {
-        Log.i(TAG, "initializeLanguageDropDown: ")
         val items = resources.getStringArray(R.array.language_list_keys)
         val adapter = ArrayAdapter(requireContext(), R.layout.list_item, items)
         (binding.newsLanguage.editText as? AutoCompleteTextView)
@@ -166,7 +152,6 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
     }
 
     private fun initializeCategoryDropDown() {
-        Log.i(TAG, "initializeCategoryDropDown: ")
         val items = resources.getStringArray(R.array.category_list)
         val adapter = ArrayAdapter(requireContext(), R.layout.list_item, items)
         (binding.newsCategory.editText as? AutoCompleteTextView)

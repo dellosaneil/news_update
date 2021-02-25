@@ -9,7 +9,6 @@ class Constants {
         const val ARGUMENT_BUNDLE = "bundle"
 
         const val URL_LINK_EXTRA = "urlLink"
-        const val URL_LINK_DEFAULT = "https://www.google.com/"
 
 
         const val SEARCH_DETAILS_DIALOG = "details"
