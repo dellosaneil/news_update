@@ -2,7 +2,6 @@ package com.example.newstracker.fragments
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,10 +32,8 @@ import com.example.newstracker.room.entity.SavedArticlesEntity
 import com.example.newstracker.viewModel.result.ResultVM
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -51,7 +48,7 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
     private var _binding: FragmentResultsBinding? = null
     private val binding get() = _binding!!
 
-    private val args : ResultFragmentArgs? by navArgs()
+    private val args: ResultFragmentArgs? by navArgs()
 
     @Inject
     lateinit var savedArticlesDao: SavedArticlesRepository
@@ -67,7 +64,6 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentResultsBinding.inflate(inflater, container, false)
-        args?.preferences?.let { searchArticlesWithPreference(it) }
         initializeRecyclerView()
         return binding.root
     }
@@ -75,13 +71,27 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
-
+        placeItemsInRecyclerView(savedInstanceState)
         binding.topAppBar.setNavigationOnClickListener {
             navController.navigateUp()
         }
     }
 
-    private fun initializeToolbar(label: String?, number : Int) {
+    private fun placeItemsInRecyclerView(savedInstanceState: Bundle?) {
+        if(savedInstanceState == null){
+            args?.preferences?.let {
+                searchArticlesWithPreference(it)
+            }
+        }else{
+            resultViewModel.articleList().observe(viewLifecycleOwner){
+                myAdapter.setNewsArticles(it)
+                initializeToolbar(args?.preferences?.label, it.size)
+                changeVisibility(true)
+            }
+        }
+    }
+
+    private fun initializeToolbar(label: String?, number: Int) {
         binding.topAppBar.title = getString(R.string.results_toolbar, label, number.toString())
     }
 
@@ -108,6 +118,7 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
                 myAdapter.setNewsArticles(
                     uniqueArticles
                 )
+                resultViewModel.saveArticleList(uniqueArticles)
                 initializeToolbar(args?.preferences?.label, uniqueArticles.size)
             }
         } else {
@@ -134,11 +145,9 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
     //   Put data into view model
     private fun searchArticlesWithPreference(prefs: PreferenceEntity) {
         resultViewModel.placePreferences(prefs)
-        lifecycleScope.launch(IO){
+        lifecycleScope.launch(IO) {
             resultViewModel.retrieveArticles(retrieveKey())
         }
-
-
     }
 
     private suspend fun retrieveKey(): Int {
