@@ -6,8 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.newstracker.R
-import com.example.newstracker.databinding.ListLayoutSavedArticlesBinding
+import com.example.newstracker.databinding.ListLayoutArticlesBinding
 import com.example.newstracker.room.entity.SavedArticlesEntity
 
 class SavedArticlesAdapter(val openLinkListener: OnOpenLinkListener) : RecyclerView.Adapter<SavedArticlesAdapter.SavedArticlesViewHolder>() {
@@ -22,7 +23,7 @@ class SavedArticlesAdapter(val openLinkListener: OnOpenLinkListener) : RecyclerV
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SavedArticlesViewHolder {
-        val binding = ListLayoutSavedArticlesBinding.inflate(
+        val binding = ListLayoutArticlesBinding.inflate(
             LayoutInflater.from(parent.context),
             parent, false
         )
@@ -47,28 +48,34 @@ class SavedArticlesAdapter(val openLinkListener: OnOpenLinkListener) : RecyclerV
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) = oldList[oldItemPosition] == newList[newItemPosition]
     }
 
-    inner class SavedArticlesViewHolder(private val binding: ListLayoutSavedArticlesBinding) :
+    inner class SavedArticlesViewHolder(private val binding: ListLayoutArticlesBinding) :
         RecyclerView.ViewHolder(binding.root), View.OnClickListener{
 
         init{
-            binding.savedArticlesLogo.setOnClickListener(this)
+            binding.rvLogo.setOnClickListener(this)
         }
 
         fun bind(savedArticle: SavedArticlesEntity) {
             colorUrlLink(savedArticle.articleLink)
-            binding.savedArticlesTitle.text = savedArticle.articleTitle
-            binding.savedArticlesDescription.text = savedArticle.articleDescription
-            binding.savedArticlesSource.text = savedArticle.source
+            binding.rvTitle.text = savedArticle.articleTitle
+            binding.rvDescription.text = savedArticle.articleDescription
+            binding.rvSource.text = savedArticle.source
+
+            Glide.with(binding.root)
+                .load(savedArticle.urlImage)
+                .placeholder(R.drawable.ic_image_gallery)
+                .into(binding.rvImage)
+
         }
 
         private fun colorUrlLink(link : String){
             val isSecure = link.subSequence(0,5)
             if(isSecure != "https"){
-                binding.savedArticlesTitle.setTextColor(Color.RED)
-                binding.savedArticlesLogo.setImageResource(R.drawable.ic_unsecure)
+                binding.rvTitle.setTextColor(Color.RED)
+                binding.rvLogo.setImageResource(R.drawable.ic_unsecure)
             }else{
-                binding.savedArticlesTitle.setTextColor(Color.BLACK)
-                binding.savedArticlesLogo.setImageResource(R.drawable.ic_globe)
+                binding.rvTitle.setTextColor(Color.BLACK)
+                binding.rvLogo.setImageResource(R.drawable.ic_globe)
             }
         }
 

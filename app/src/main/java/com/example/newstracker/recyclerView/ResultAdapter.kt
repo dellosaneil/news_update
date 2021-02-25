@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.newstracker.R
-import com.example.newstracker.databinding.ListLayoutResultsBinding
+import com.example.newstracker.databinding.ListLayoutArticlesBinding
 import com.example.newstracker.retrofit.dataclass.Article
 import com.example.newstracker.room.entity.SavedArticlesEntity
 
@@ -26,7 +26,7 @@ class ResultAdapter(val linkListener: OpenLinkListener, val saveListener: SaveAr
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ResultViewHolder {
-        val binding = ListLayoutResultsBinding.inflate(
+        val binding = ListLayoutArticlesBinding.inflate(
             LayoutInflater.from(parent.context),
             parent, false
         )
@@ -57,12 +57,12 @@ class ResultAdapter(val linkListener: OpenLinkListener, val saveListener: SaveAr
     }
 
 
-    inner class ResultViewHolder(private val binding: ListLayoutResultsBinding) :
+    inner class ResultViewHolder(private val binding: ListLayoutArticlesBinding) :
         RecyclerView.ViewHolder(binding.root), View.OnClickListener, View.OnLongClickListener {
 
         init {
             binding.rvLogo.setOnClickListener(this)
-            binding.listLayoutResultsCardView.setOnLongClickListener(this)
+            binding.rvCardView.setOnLongClickListener(this)
         }
 
         fun bind(article: Article) {
@@ -107,7 +107,7 @@ class ResultAdapter(val linkListener: OpenLinkListener, val saveListener: SaveAr
 
         override fun onLongClick(v: View?): Boolean {
             return when (v?.id) {
-                R.id.listLayoutResults_cardView -> {
+                R.id.rv_cardView -> {
                     saveListener.saveArticleListener(createSavedEntity())
                     true
                 }

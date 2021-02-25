@@ -95,7 +95,6 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
         binding.topAppBar.title = getString(R.string.results_toolbar, label, number.toString())
     }
 
-
     //    Observer Variables
     private val visibilityObserver = Observer<Boolean> { changeVisibility(it) }
     private var articleObserver = Observer<Response<NewsResponse>?> { updateRecyclerView(it) }

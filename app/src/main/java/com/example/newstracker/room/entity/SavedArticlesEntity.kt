@@ -10,5 +10,5 @@ data class SavedArticlesEntity(
     val articleDescription : String,
     val articleLink : String,
     val source : String,
-    val urlImage : String
+    val urlImage : String? = null
 )
