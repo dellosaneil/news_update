@@ -45,15 +45,14 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
     ): View {
         _binding = FragmentSearchBinding.inflate(inflater, container, false)
         initializeRecyclerView()
-        // Redirect Fragment into Fragment with adding capability
-        val itemSwipeListener = SearchPreferenceSwipeListener(this)
-        val itemTouchHelper = ItemTouchHelper(itemSwipeListener)
-        itemTouchHelper.attachToRecyclerView(binding.searchFragmentRecyclerView)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val itemSwipeListener = SearchPreferenceSwipeListener(this)
+        val itemTouchHelper = ItemTouchHelper(itemSwipeListener)
+        itemTouchHelper.attachToRecyclerView(binding.searchFragmentRecyclerView)
         navController = Navigation.findNavController(view)
         binding.searchFragmentAdd.setOnClickListener(this)
     }
@@ -90,7 +89,7 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
 
     private fun checkDelete(index: Int) {
         val preference = preferencesList[index]
-        MaterialAlertDialogBuilder(requireView().context)
+        MaterialAlertDialogBuilder(requireContext())
             .apply {
                 setTitle(resources.getString(R.string.dialog_delete_title))
                 setMessage((resources.getString(R.string.dialog_delete_message, preference.label)))

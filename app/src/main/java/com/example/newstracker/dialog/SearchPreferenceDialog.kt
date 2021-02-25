@@ -15,8 +15,6 @@ class SearchPreferenceDialog(private val details: PreferenceEntity) : DialogFrag
     private var _binding: DialogSearchPreferenceDetailsBinding? = null
     private val binding get() = _binding!!
 
-    private val TAG = "SearchPreferenceDialog"
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -29,11 +27,7 @@ class SearchPreferenceDialog(private val details: PreferenceEntity) : DialogFrag
         categoryData(details.category)
         countryData(details.country)
         languageData(details.language)
-
-        Log.i(TAG, "onCreateView: $details")
-
         binding.dialogPreferenceOkButton.setOnClickListener { dismiss() }
-
         return binding.root
     }
 
@@ -83,7 +77,7 @@ class SearchPreferenceDialog(private val details: PreferenceEntity) : DialogFrag
         }
         val temp = getString(R.string.dialog_preference_keyword, keyWord)
         binding.dialogPreferenceKeyword.text = temp
-        
+
 
     }
 

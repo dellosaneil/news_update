@@ -1,11 +1,14 @@
 package com.example.newstracker.fragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import com.example.newstracker.FragmentLifecycleLogging
@@ -26,6 +29,8 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
     lateinit var repository: PreferenceRepository
     private var _binding: FragmentAddSearchPreferenceBinding? = null
     private val binding get() = _binding!!
+    private var canSave = false
+    private var toast : Toast? = null
 
 
     override fun onCreateView(
@@ -41,7 +46,7 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
         initializeCategoryDropDown()
         initializeLanguageDropDown()
         initializeCountryDropDown()
-        binding.newsSaveButton.setOnClickListener { retrieveValue(view) }
+        binding.newsSaveButton.setOnClickListener { retrieveValue() }
         setUpNavigateUp(view)
     }
 
@@ -55,7 +60,8 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
 
     private fun indexNumber(key: String, array: Array<String>) = array.indexOf(key)
 
-    private fun retrieveValue(view: View) {
+    @SuppressLint("ShowToast")
+    private fun retrieveValue() {
         val preferenceName = binding.newsLabel.editText?.text.toString()
         if (preferenceName.isBlank()) {
             binding.newsLabel.error = resources.getString(R.string.user_add_preference_error)
@@ -82,25 +88,39 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
             categoryCode = convertAll("Any", categoryCode)
             languageCode = convertAll("Any", languageCode)
 
-            saveToRoomDatabase(
-                preferenceName,
-                keywordText,
-                countryCode,
-                languageCode,
-                categoryCode,
-                view
-            )
+            if(canSave){
+                saveToRoomDatabase(
+                    preferenceName,
+                    keywordText,
+                    countryCode,
+                    languageCode,
+                    categoryCode
+                )
+            }else{
+                toast?.let{
+                    it.cancel()
+                    toast = Toast.makeText(requireContext(), "Please input a single parameter", Toast.LENGTH_SHORT)
+                } ?: run {
+                    toast = Toast.makeText(
+                        requireContext(),
+                        "Please input a single parameter",
+                        Toast.LENGTH_SHORT
+                    )
+                }
+                toast?.show()
+            }
         }
     }
-
-
     //converts all default values to blanks.
     private fun convertAll(defaultText: String, inputValue: String): String {
-        return if (defaultText == inputValue) {
-            " "
+        val query : String
+        if (defaultText != inputValue && inputValue != "") {
+            query = inputValue
+            canSave = true
         } else {
-            inputValue
+            query = ""
         }
+        return query
     }
 
     private fun saveToRoomDatabase(
@@ -108,8 +128,7 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
         keywordText: String,
         countryCode: String,
         languageCode: String,
-        categoryCode: String,
-        view: View
+        categoryCode: String
     ) {
         lifecycleScope.launch(IO) {
             val newPreference = PreferenceEntity(
@@ -125,7 +144,7 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
             withContext(Main){
                 if (isUpdate == 0) {
                     repository.addNewPreference(newPreference)
-                    Navigation.findNavController(view)
+                    Navigation.findNavController(requireView())
                         .navigate(R.id.addNewSearchPreference_searchPreferences)
                 } else {
                     binding.newsLabel.error =
