@@ -38,6 +38,13 @@ class SavedArticlesVM @Inject constructor(private val repository: SavedArticlesR
 
     fun getSavedArticles() = savedArticles
 
+    fun restoreDeletedArticle(savedArticle: SavedArticlesEntity){
+        viewModelScope.launch(IO) {
+            repository.saveArticle(savedArticle)
+        }
+    }
+
+
     fun deleteArticle(savedArticle : SavedArticlesEntity){
         viewModelScope.launch(IO) { repository.deleteArticle(savedArticle) }
     }

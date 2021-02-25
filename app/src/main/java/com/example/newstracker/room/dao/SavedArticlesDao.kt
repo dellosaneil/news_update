@@ -17,7 +17,7 @@ interface SavedArticlesDao {
     @Delete
     suspend fun deleteArticle(article : SavedArticlesEntity)
 
-    @Query("SELECT * FROM saved_articles_table")
+    @Query("SELECT * FROM saved_articles_table ORDER BY time DESC")
     fun getAllSavedArticles() : LiveData<List<SavedArticlesEntity>>
 
     @Query("DELETE FROM saved_articles_table")

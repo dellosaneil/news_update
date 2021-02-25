@@ -56,7 +56,7 @@ class SavedArticlesAdapter(val openLinkListener: OnOpenLinkListener) : RecyclerV
         }
 
         fun bind(savedArticle: SavedArticlesEntity) {
-            colorUrlLink(savedArticle.articleLink)
+            savedArticle.articleLink?.let { colorUrlLink(it) }
             binding.rvTitle.text = savedArticle.articleTitle
             binding.rvDescription.text = savedArticle.articleDescription
             binding.rvSource.text = savedArticle.source
@@ -80,7 +80,7 @@ class SavedArticlesAdapter(val openLinkListener: OnOpenLinkListener) : RecyclerV
         }
 
         override fun onClick(v: View?) {
-            openLinkListener.openLinkListener(savedArticles[adapterPosition].articleLink)
+            savedArticles[adapterPosition].articleLink?.let { openLinkListener.openLinkListener(it) }
         }
     }
     interface OnOpenLinkListener{

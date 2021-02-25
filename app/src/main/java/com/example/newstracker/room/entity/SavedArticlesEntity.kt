@@ -7,8 +7,9 @@ import androidx.room.PrimaryKey
 data class SavedArticlesEntity(
     @PrimaryKey
     val articleTitle : String,
-    val articleDescription : String,
-    val articleLink : String,
-    val source : String,
-    val urlImage : String? = null
+    val articleDescription : String? = null,
+    val articleLink : String? = null,
+    val source : String? = null,
+    val urlImage : String? = null,
+    val time : Long = System.currentTimeMillis()
 )

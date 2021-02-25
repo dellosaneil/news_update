@@ -121,11 +121,7 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
                 initializeToolbar(args?.preferences?.label, uniqueArticles.size)
             }
         } else {
-            Toast.makeText(
-                requireContext(),
-                resources.getString(R.string.network_problem),
-                Toast.LENGTH_LONG
-            ).show()
+            toastHandler(resources.getString(R.string.network_problem))
         }
     }
 
@@ -182,6 +178,7 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
 
     override fun onDestroyView() {
         super.onDestroyView()
+        toast?.cancel()
         _binding = null
     }
 

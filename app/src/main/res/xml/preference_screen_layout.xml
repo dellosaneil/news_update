@@ -8,7 +8,7 @@
             app:key="page_size"
             app:title="@string/settings_page_count_title"
             app:summary="@string/settings_page_count_summary"
-            app:min="20"
+            app:min="0"
             android:defaultValue="20"
             android:max="100"
             app:showSeekBarValue="true"

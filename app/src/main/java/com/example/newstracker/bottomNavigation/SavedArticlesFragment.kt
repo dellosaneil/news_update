@@ -1,7 +1,6 @@
 package com.example.newstracker.bottomNavigation
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,8 +18,9 @@ import com.example.newstracker.callbackListener.SearchPreferenceSwipeListener
 import com.example.newstracker.databinding.FragmentSavedBinding
 import com.example.newstracker.recyclerView.RecyclerViewDecorator
 import com.example.newstracker.recyclerView.SavedArticlesAdapter
+import com.example.newstracker.room.entity.SavedArticlesEntity
 import com.example.newstracker.viewModel.savedArticles.SavedArticlesVM
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -34,6 +34,8 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
 
     private val myAdapter = SavedArticlesAdapter(this)
     private lateinit var navController: NavController
+
+    private var previousValues = listOf<SavedArticlesEntity>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -87,25 +89,24 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
     }
 
     override fun openLinkListener(url: String) {
-        Toast.makeText(requireContext(), "Redirecting...", Toast.LENGTH_LONG).show()
+        Toast.makeText(requireContext(), getString(R.string.redirecting), Toast.LENGTH_LONG).show()
         val bundle = bundleOf(Constants.URL_LINK_EXTRA to url)
         navController.navigate(R.id.savedArticleFragment_webViewFragment, bundle)
 
     }
 
     override fun swipePreferenceIndex(index: Int) {
+        previousValues = savedArticleViewModel.getSavedArticles()?.value!!
         val deletedArticle = savedArticleViewModel.getSavedArticles()?.value?.get(index)
-        val title = deletedArticle?.articleTitle
-        MaterialAlertDialogBuilder(requireContext()).apply {
-            setTitle(getString(R.string.delete_dialog_title))
-            setMessage(getString(R.string.delete_dialog_message, title))
-            setPositiveButton(getString(R.string.dialog_delete_confirm)) { _, _ ->
-                title?.let { savedArticleViewModel.deleteArticle(deletedArticle) }
+        savedArticleViewModel.deleteArticle(deletedArticle!!)
+        createSnackBar(deletedArticle)
+    }
+
+    private fun createSnackBar(deletedArticle: SavedArticlesEntity) {
+        Snackbar.make(requireView(), getString(R.string.article_deleted), Snackbar.LENGTH_LONG)
+            .setAction(getString(R.string.undo)){
+                savedArticleViewModel.restoreDeletedArticle(deletedArticle)
             }
-            setNegativeButton(getString(R.string.dialog_delete_cancel)) {_,_ ->
-                myAdapter.notifyItemChanged(index)
-            }
-            setCancelable(false)
-        }.show()
+            .show()
     }
 }
