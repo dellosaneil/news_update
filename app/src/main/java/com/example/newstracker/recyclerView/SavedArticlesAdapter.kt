@@ -1,7 +1,6 @@
 package com.example.newstracker.recyclerView
 
 import android.graphics.Color
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +12,7 @@ import com.example.newstracker.room.entity.SavedArticlesEntity
 
 class SavedArticlesAdapter(val openLinkListener: OnOpenLinkListener) : RecyclerView.Adapter<SavedArticlesAdapter.SavedArticlesViewHolder>() {
 
-    private var savedArticles: List<SavedArticlesEntity> = ArrayList()
+    private var savedArticles = listOf<SavedArticlesEntity>()
 
     fun setSavedArticles(newList: List<SavedArticlesEntity>) {
         val oldList = savedArticles
@@ -21,9 +20,6 @@ class SavedArticlesAdapter(val openLinkListener: OnOpenLinkListener) : RecyclerV
         savedArticles = newList
         diffResult.dispatchUpdatesTo(this)
     }
-
-    fun getSavedArticles() = savedArticles
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SavedArticlesViewHolder {
         val binding = ListLayoutSavedArticlesBinding.inflate(
@@ -46,17 +42,9 @@ class SavedArticlesAdapter(val openLinkListener: OnOpenLinkListener) : RecyclerV
         private val newList: List<SavedArticlesEntity>
     ) : DiffUtil.Callback() {
         override fun getOldListSize() = oldList.size
-
         override fun getNewListSize() = newList.size
-
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition].articleTitle == newList[newItemPosition].articleTitle
-        }
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition] == newList[newItemPosition]
-        }
-
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) = oldList[oldItemPosition].articleTitle == newList[newItemPosition].articleTitle
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) = oldList[oldItemPosition] == newList[newItemPosition]
     }
 
     inner class SavedArticlesViewHolder(private val binding: ListLayoutSavedArticlesBinding) :

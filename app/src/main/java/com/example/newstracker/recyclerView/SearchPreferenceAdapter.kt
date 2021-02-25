@@ -43,21 +43,11 @@ class SearchPreferenceAdapter(private val listener: OnItemClickedListener) :
         private val oldList: List<PreferenceEntity>,
         private val newList: List<PreferenceEntity>
     ) : DiffUtil.Callback() {
-        override fun getOldListSize(): Int {
-            return oldList.size
-        }
+        override fun getOldListSize() = oldList.size
+        override fun getNewListSize() = newList.size
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int)=  oldList[oldItemPosition].label == newList[newItemPosition].label
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) = oldList[oldItemPosition] == newList[newItemPosition]
 
-        override fun getNewListSize(): Int {
-            return newList.size
-        }
-
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition].label == newList[newItemPosition].label
-        }
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition] == newList[newItemPosition]
-        }
     }
 
 

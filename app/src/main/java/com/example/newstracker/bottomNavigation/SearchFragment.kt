@@ -1,17 +1,16 @@
 package com.example.newstracker.bottomNavigation
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.newstracker.Constants.Companion.ARGUMENT_BUNDLE
 import com.example.newstracker.Constants.Companion.SEARCH_DETAILS_DIALOG
 import com.example.newstracker.FragmentLifecycleLogging
 import com.example.newstracker.R
@@ -73,8 +72,8 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
     }
 
     override fun searchBreakingNews(pref: PreferenceEntity) {
-        val bundle = bundleOf(ARGUMENT_BUNDLE to pref)
-        navController.navigate(R.id.searchPreferences_newsArticles, bundle)
+        val action = SearchFragmentDirections.searchPreferencesNewsArticles(pref)
+        Navigation.findNavController(requireView()).navigate(action)
     }
 
     override fun preferenceDetails(pref: PreferenceEntity) {

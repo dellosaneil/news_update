@@ -12,8 +12,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.newstracker.Constants.Companion.ARGUMENT_BUNDLE
 import com.example.newstracker.Constants.Companion.URL_LINK_EXTRA
 import com.example.newstracker.FragmentLifecycleLogging
 import com.example.newstracker.R
@@ -23,16 +23,17 @@ import com.example.newstracker.recyclerView.ResultAdapter
 import com.example.newstracker.repository.SavedArticlesRepository
 import com.example.newstracker.retrofit.dataclass.Article
 import com.example.newstracker.retrofit.dataclass.NewsResponse
-import com.example.newstracker.room.NewsTrackerDatabase
-import com.example.newstracker.room.dao.SavedArticlesDao
 import com.example.newstracker.room.entity.PreferenceEntity
 import com.example.newstracker.room.entity.SavedArticlesEntity
 import com.example.newstracker.viewModel.result.ResultVM
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -45,6 +46,8 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
 
     private var _binding: FragmentResultsBinding? = null
     private val binding get() = _binding!!
+
+    private val args : ResultFragmentArgs? by navArgs()
 
     @Inject
     lateinit var savedArticlesDao: SavedArticlesRepository
@@ -60,16 +63,14 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentResultsBinding.inflate(inflater, container, false)
-        val prefs = arguments?.getParcelable<PreferenceEntity>(ARGUMENT_BUNDLE)
-
-        initializeToolbar(prefs?.label)
-        prefs?.let { searchArticlesWithPreference(it) }
+        args?.preferences?.let { searchArticlesWithPreference(it) }
         initializeRecyclerView()
         return binding.root
     }
 
-    private fun initializeToolbar(label: String?) {
-        binding.topAppBar.title = label
+    private fun initializeToolbar(label: String?, number : Int) {
+        val title = "$label ($number Results)"
+        binding.topAppBar.title = title
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -104,8 +105,7 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
                 myAdapter.setNewsArticles(
                     uniqueArticles
                 )
-                val message = "Number of Articles: ${uniqueArticles.size}"
-                toastHandler(message)
+                initializeToolbar(args?.preferences?.label, uniqueArticles.size)
             }
         } else {
             Toast.makeText(

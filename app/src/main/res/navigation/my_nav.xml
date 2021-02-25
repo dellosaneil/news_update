@@ -26,9 +26,6 @@
         <action
             android:id="@+id/searchPreferences_newsArticles"
             app:destination="@id/newsArticlesFragment">
-            <argument
-                android:name="bundle"
-                app:argType="com.example.newstracker.room.entity.PreferenceEntity" />
         </action>
     </fragment>
     <fragment
@@ -55,6 +52,11 @@
         <action
             android:id="@+id/newsArticlesFragment_webViewFragment"
             app:destination="@id/webViewFragment" />
+        <argument
+            android:name="preferences"
+            app:argType="com.example.newstracker.room.entity.PreferenceEntity"
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
     <fragment
         android:id="@+id/webViewFragment"
