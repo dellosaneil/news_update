@@ -2,7 +2,6 @@ package com.example.newstracker.fragments
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,9 +16,10 @@ import com.example.newstracker.databinding.FragmentAddSearchPreferenceBinding
 import com.example.newstracker.repository.PreferenceRepository
 import com.example.newstracker.room.entity.PreferenceEntity
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @AndroidEntryPoint

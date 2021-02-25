@@ -15,4 +15,6 @@ class PreferenceRepository @Inject constructor(private val preferenceDao: Prefer
 
     suspend fun checkLabel(label: String) = preferenceDao.checkLabel(label)
 
+    suspend fun clearSearchPreferences() = preferenceDao.clearSearchPreferences()
+
 }

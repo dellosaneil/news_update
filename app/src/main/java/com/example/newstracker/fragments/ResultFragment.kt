@@ -68,11 +68,6 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
         return binding.root
     }
 
-    private fun initializeToolbar(label: String?, number : Int) {
-        val title = "$label ($number Results)"
-        binding.topAppBar.title = title
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
@@ -80,6 +75,10 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
         binding.topAppBar.setNavigationOnClickListener {
             navController.navigateUp()
         }
+    }
+
+    private fun initializeToolbar(label: String?, number : Int) {
+        binding.topAppBar.title = getString(R.string.results_toolbar, label, number.toString())
     }
 
 

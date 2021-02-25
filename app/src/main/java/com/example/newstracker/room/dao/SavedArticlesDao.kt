@@ -20,5 +20,8 @@ interface SavedArticlesDao {
     @Query("SELECT * FROM saved_articles_table")
     fun getAllSavedArticles() : LiveData<List<SavedArticlesEntity>>
 
+    @Query("DELETE FROM saved_articles_table")
+    suspend fun clearSavedArticles()
+
 
 }

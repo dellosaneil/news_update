@@ -9,8 +9,8 @@
             app:title="@string/settings_page_count_title"
             app:summary="@string/settings_page_count_summary"
             app:min="20"
+            android:defaultValue="20"
             android:max="100"
-            app:icon="@drawable/ic_filter"
             app:showSeekBarValue="true"
             android:enabled="true"
             app:adjustable="true"
@@ -21,9 +21,11 @@
     <PreferenceCategory
         app:title="@string/settings_clear_database">
         <Preference
+            app:key="clear_articles"
             app:title="@string/settings_clear_saved_articles"
             />
         <Preference
+            app:key="clear_search"
             app:title="@string/settings_clear_saved_preferences"/>
     </PreferenceCategory>
 

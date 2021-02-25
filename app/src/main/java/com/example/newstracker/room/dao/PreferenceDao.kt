@@ -19,4 +19,7 @@ interface PreferenceDao {
     @Delete
     suspend fun deletePreference(preference: PreferenceEntity)
 
+    @Query("DELETE FROM preference_table")
+    suspend fun clearSearchPreferences()
+
 }
