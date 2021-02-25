@@ -1,28 +1,26 @@
 package com.example.newstracker.bottomNavigation
 
-import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.createDataStore
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SeekBarPreference
-import androidx.preference.get
 import com.example.newstracker.Constants.Companion.CLEAR_ARTICLES
 import com.example.newstracker.Constants.Companion.CLEAR_SAVED_SEARCH
+import com.example.newstracker.Constants.Companion.DATA_STORE
 import com.example.newstracker.Constants.Companion.SEEK_BAR_KEY
 import com.example.newstracker.R
 import com.example.newstracker.repository.PreferenceRepository
 import com.example.newstracker.repository.SavedArticlesRepository
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
-import java.util.prefs.PreferenceChangeListener
-import java.util.prefs.Preferences
 import javax.inject.Inject
-import kotlin.math.log
 
 @AndroidEntryPoint
 class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener{
@@ -33,9 +31,16 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
     @Inject
     lateinit var savedArticles : SavedArticlesRepository
 
+    private lateinit var dataStore: DataStore<Preferences>
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        dataStore = context?.createDataStore(DATA_STORE)!!
+    }
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preference_screen_layout, rootKey)
-
         preferenceManager.findPreference<SeekBarPreference>(SEEK_BAR_KEY)?.onPreferenceChangeListener = this
     }
 
@@ -58,7 +63,14 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
     }
 
     override fun onPreferenceChange(preference: Preference?, newValue: Any?): Boolean {
-        return false
+        val seekBarValue = newValue as Int
+        val dataStoreKey = intPreferencesKey(SEEK_BAR_KEY)
+        lifecycleScope.launch(IO){
+            dataStore.edit {
+                it[dataStoreKey] = seekBarValue
+            }
+        }
+        return true
     }
 
 }

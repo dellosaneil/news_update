@@ -8,12 +8,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.createDataStore
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.newstracker.Constants.Companion.DATA_STORE
+import com.example.newstracker.Constants.Companion.SEEK_BAR_KEY
 import com.example.newstracker.Constants.Companion.URL_LINK_EXTRA
 import com.example.newstracker.FragmentLifecycleLogging
 import com.example.newstracker.R
@@ -32,6 +37,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.Response
@@ -41,8 +47,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListener,
     ResultAdapter.SaveArticleListener {
-
-    private val scope = CoroutineScope(IO)
 
     private var _binding: FragmentResultsBinding? = null
     private val binding get() = _binding!!
@@ -130,8 +134,19 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
     //   Put data into view model
     private fun searchArticlesWithPreference(prefs: PreferenceEntity) {
         resultViewModel.placePreferences(prefs)
-        resultViewModel.retrieveArticles()
+        lifecycleScope.launch(IO){
+            resultViewModel.retrieveArticles(retrieveKey())
+        }
+
+
     }
+
+    private suspend fun retrieveKey(): Int {
+        val retrieveKey = intPreferencesKey(SEEK_BAR_KEY)
+        val preferences = context?.createDataStore(DATA_STORE)
+        return preferences?.data?.first()?.get(retrieveKey) ?: 100
+    }
+
 
     //    Assign observer to LiveData
     private fun observeData() {
@@ -155,7 +170,6 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
     override fun onDestroy() {
         super.onDestroy()
         resultViewModel.clearAllData()
-        scope.cancel()
     }
 
     override fun onDestroyView() {
@@ -169,7 +183,7 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
     }
 
     override fun saveArticleListener(article: SavedArticlesEntity) {
-        scope.launch {
+        lifecycleScope.launch(IO) {
             val isInDatabase = savedArticlesDao.checkArticle(article.articleTitle)
             if (isInDatabase == 0) {
                 withContext(Main) {
@@ -195,7 +209,7 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
                     )
                 )
                 setPositiveButton(resources.getString(R.string.dialog_save_article_positive)) { _, _ ->
-                    scope.launch {
+                    lifecycleScope.launch(IO) {
                         savedArticlesDao.saveArticle(article)
                     }
                     toastHandler(resources.getString(R.string.save_article_success))

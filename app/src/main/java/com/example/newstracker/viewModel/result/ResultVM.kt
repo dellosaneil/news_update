@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.newstracker.repository.RetrofitRepository
 import com.example.newstracker.retrofit.dataclass.NewsResponse
 import com.example.newstracker.room.entity.PreferenceEntity
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -41,20 +40,20 @@ class ResultVM(private val retrofitRepository: RetrofitRepository) : ViewModel()
         return rawArticle
     }
 
-    fun retrieveArticles() {
-        viewModelScope.launch(IO) {
-            val tempValue =
-                retrofitRepository.repositoryArticles(
-                    preferences!!.category,
-                    preferences!!.country,
-                    preferences!!.keyword,
-                    preferences!!.language
-                )
-            withContext(Main) {
-                finished?.value = true
-                rawArticle?.value = tempValue
-            }
+    suspend fun retrieveArticles(pageSize: Int = 100) {
+        val tempValue =
+            retrofitRepository.repositoryArticles(
+                preferences!!.category,
+                preferences!!.country,
+                preferences!!.keyword,
+                preferences!!.language,
+                pageSize
+            )
+        withContext(Main) {
+            finished?.value = true
+            rawArticle?.value = tempValue
         }
+
     }
 
     fun clearAllData() {
