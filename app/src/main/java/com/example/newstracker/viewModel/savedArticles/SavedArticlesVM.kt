@@ -17,11 +17,9 @@ class SavedArticlesVM @ViewModelInject constructor(private val repository: Saved
 
     private var isFinishedLoading :MutableLiveData<Boolean> = MutableLiveData(false)
 
-    private val TAG = "SavedArticlesVM"
     private var savedArticles: LiveData<List<SavedArticlesEntity>>? = null
 
     init {
-        Log.i(TAG, "INITIALIZE :  ")
         viewModelScope.launch(IO) {
             setSavedArticles()
             withContext(Main){
@@ -38,9 +36,7 @@ class SavedArticlesVM @ViewModelInject constructor(private val repository: Saved
 
     fun getSavedArticles() = savedArticles
 
-    fun deleteArticle(title : String){
-        viewModelScope.launch(IO) { repository.deleteArticle(title) }
+    fun deleteArticle(savedArticle : SavedArticlesEntity){
+        viewModelScope.launch(IO) { repository.deleteArticle(savedArticle) }
     }
-
-
 }

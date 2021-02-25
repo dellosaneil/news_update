@@ -11,7 +11,7 @@ class PreferenceRepository @Inject constructor(private val preferenceDao: Prefer
     suspend fun addNewPreference(preference: PreferenceEntity) =
         preferenceDao.addPreference(preference)
 
-    suspend fun deletePreference(label: String) = preferenceDao.deletePreference(label)
+    suspend fun deletePreference(preference: PreferenceEntity) = preferenceDao.deletePreference(preference)
 
     suspend fun checkLabel(label: String) = preferenceDao.checkLabel(label)
 

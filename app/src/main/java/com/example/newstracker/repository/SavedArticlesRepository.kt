@@ -8,7 +8,7 @@ class SavedArticlesRepository @Inject constructor(private val savedArticlesDao: 
 
     suspend fun saveArticle(article: SavedArticlesEntity) = savedArticlesDao.saveArticle(article)
     suspend fun checkArticle(article: String) = savedArticlesDao.checkArticle(article)
-    suspend fun deleteArticle(article : String) = savedArticlesDao.deleteArticle(article)
+    suspend fun deleteArticle(article : SavedArticlesEntity) = savedArticlesDao.deleteArticle(article)
     fun getAllSavedArticles() = savedArticlesDao.getAllSavedArticles()
 
 }

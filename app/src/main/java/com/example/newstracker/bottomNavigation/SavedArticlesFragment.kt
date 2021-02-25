@@ -33,7 +33,6 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
     private val savedArticleViewModel: SavedArticlesVM by viewModels()
 
     private val myAdapter = SavedArticlesAdapter(this)
-    private val TAG = "SavedArticlesFragment"
     private lateinit var navController: NavController
 
     override fun onCreateView(
@@ -56,8 +55,6 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
 
 
     private fun initializeRecyclerView() {
-
-        Log.i(TAG, "initializeRecyclerView: ")
         binding.savedArticlesRecyclerView.run {
             setHasFixedSize(true)
             val decorator = RecyclerViewDecorator(6, 6)
@@ -70,7 +67,6 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
     }
 
     private fun observeViewModel() {
-        Log.i(TAG, "observeViewModel: ")
         savedArticleViewModel.isFinished().observe(viewLifecycleOwner, {
             if (it) {
                 visibilityControl()
@@ -81,7 +77,6 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
 
     private fun startObserveForChanges() {
         savedArticleViewModel.getSavedArticles()?.observe(viewLifecycleOwner, {
-            Log.i(TAG, "observeViewModel: OBSERVE")
             myAdapter.setSavedArticles(it)
         })
     }
@@ -101,12 +96,11 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
     override fun swipePreferenceIndex(index: Int) {
         val deletedArticle = savedArticleViewModel.getSavedArticles()?.value?.get(index)
         val title = deletedArticle?.articleTitle
-
         MaterialAlertDialogBuilder(requireContext()).apply {
             setTitle(getString(R.string.delete_dialog_title))
             setMessage(getString(R.string.delete_dialog_message, title))
             setPositiveButton(getString(R.string.dialog_delete_confirm)) { _, _ ->
-                title?.let { savedArticleViewModel.deleteArticle(it) }
+                title?.let { savedArticleViewModel.deleteArticle(deletedArticle) }
             }
             setNegativeButton(getString(R.string.dialog_delete_cancel)) {_,_ ->
                 myAdapter.notifyItemChanged(index)

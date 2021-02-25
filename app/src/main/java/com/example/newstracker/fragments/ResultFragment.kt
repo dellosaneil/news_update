@@ -55,8 +55,6 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
 
     private var toast: Toast? = null
 
-    private val TAG = "ResultFragment"
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -90,7 +88,6 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
 
     //    Observer functions
     private fun changeVisibility(isFinished: Boolean?) {
-        Log.i(TAG, "changeVisibility: ")
         if (isFinished == true) {
             binding.newsArticlesProgressBar.visibility = View.INVISIBLE
             binding.newsArticleRecyclerView.visibility = View.VISIBLE
@@ -101,7 +98,6 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
     }
 
     private fun updateRecyclerView(articles: Response<NewsResponse>?) {
-        Log.i(TAG, "updateRecyclerView: ")
         if (articles?.isSuccessful == true) {
             articles.body()?.articles?.let { result ->
                 val uniqueArticles = filterArticles(result)
@@ -112,7 +108,6 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
                 toastHandler(message)
             }
         } else {
-            Log.i(TAG, "Error Body: ${articles?.message()}")
             Toast.makeText(
                 requireContext(),
                 resources.getString(R.string.network_problem),
@@ -122,7 +117,6 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
     }
 
     private fun initializeRecyclerView() {
-        Log.i(TAG, "initializeRecyclerView: ")
         myAdapter = ResultAdapter(this, this)
         binding.newsArticleRecyclerView.run {
             setHasFixedSize(true)
@@ -136,21 +130,18 @@ class ResultFragment : FragmentLifecycleLogging(), ResultAdapter.OpenLinkListene
 
     //   Put data into view model
     private fun searchArticlesWithPreference(prefs: PreferenceEntity) {
-        Log.i(TAG, "searchArticlesWithPreference: ")
         resultViewModel.placePreferences(prefs)
         resultViewModel.retrieveArticles()
     }
 
     //    Assign observer to LiveData
     private fun observeData() {
-        Log.i(TAG, "observeData: ")
         resultViewModel.getArticles()?.observe(viewLifecycleOwner, articleObserver)
         resultViewModel.checkFinished()?.observe(viewLifecycleOwner, visibilityObserver)
     }
 
     //    Filter data to lessen probability of having the same article
     private fun filterArticles(articles: List<Article>): List<Article> {
-        Log.i(TAG, "filterArticles: ")
         val tempSet = mutableSetOf<String>()
         val filteredArticles = mutableListOf<Article>()
         for (article in articles) {

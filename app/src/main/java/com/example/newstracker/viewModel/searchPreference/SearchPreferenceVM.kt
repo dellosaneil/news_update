@@ -13,6 +13,6 @@ class SearchPreferenceVM @ViewModelInject constructor(private val repository: Pr
 
     fun retrieveAllPreference() = allPreferences
 
-    suspend fun deletePreference(label : String) = repository.deletePreference(label)
+    suspend fun deletePreference(preference : PreferenceEntity) = repository.deletePreference(preference)
 
 }

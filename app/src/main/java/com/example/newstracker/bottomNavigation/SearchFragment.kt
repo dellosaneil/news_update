@@ -1,13 +1,12 @@
 package com.example.newstracker.bottomNavigation
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -25,9 +24,7 @@ import com.example.newstracker.room.entity.PreferenceEntity
 import com.example.newstracker.viewModel.searchPreference.SearchPreferenceVM
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -39,10 +36,8 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
 
     private val searchPreferenceVM: SearchPreferenceVM by viewModels()
     private lateinit var myAdapter: SearchPreferenceAdapter
-    private val scope = CoroutineScope(IO)
     private lateinit var navController: NavController
-
-    private val TAG = "SearchFragment"
+    private lateinit var preferencesList: List<PreferenceEntity>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -64,7 +59,6 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
     }
 
     private fun initializeRecyclerView() {
-        Log.i(TAG, "initializeRecyclerView: ")
         myAdapter = SearchPreferenceAdapter(this)
         binding.searchFragmentRecyclerView.run {
             adapter = myAdapter
@@ -72,12 +66,14 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
             val customDecorator = RecyclerViewDecorator(6, 6)
             addItemDecoration(customDecorator)
             searchPreferenceVM.retrieveAllPreference()
-                .observe(viewLifecycleOwner, { myAdapter.setSearchPreferences(it) })
+                .observe(viewLifecycleOwner, {
+                    myAdapter.setSearchPreferences(it)
+                    preferencesList = it
+                })
         }
     }
 
     override fun searchBreakingNews(pref: PreferenceEntity) {
-        Log.i(TAG, "onItemClicked: ")
         val bundle = bundleOf(ARGUMENT_BUNDLE to pref)
         navController.navigate(R.id.searchPreferences_newsArticles, bundle)
     }
@@ -92,42 +88,31 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
         _binding = null
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        scope.cancel()
-    }
-
-
-    private fun checkDelete(label: String?, index: Int) {
+    private fun checkDelete(index: Int) {
+        val preference = preferencesList[index]
         MaterialAlertDialogBuilder(requireView().context)
             .apply {
                 setTitle(resources.getString(R.string.dialog_delete_title))
-                setMessage((resources.getString(R.string.dialog_delete_message, label)))
+                setMessage((resources.getString(R.string.dialog_delete_message, preference.label)))
                 setPositiveButton(resources.getString(R.string.dialog_delete_confirm)) { _, _ ->
-                    run {
-                        deletePreference(label)
-                    }
+                    deletePreference(preference)
                 }
                 setNegativeButton(resources.getString(R.string.dialog_delete_cancel)) { _, _ ->
-                    myAdapter.notifyItemChanged(
-                        index
-                    )
+                    myAdapter.notifyItemChanged(index)
                 }
                 setCancelable(false)
                 show()
             }
     }
 
-    private fun deletePreference(label: String?) {
-        scope.launch(IO) {
-            label?.let { searchPreferenceVM.deletePreference(it) }
+    private fun deletePreference(preference: PreferenceEntity) {
+        lifecycleScope.launch(IO) {
+            searchPreferenceVM.deletePreference(preference)
         }
     }
 
     override fun swipePreferenceIndex(index: Int) {
-        val label = searchPreferenceVM.retrieveAllPreference().value?.get(index)?.label
-        checkDelete(label, index)
-
+        checkDelete(index)
     }
 
     override fun onClick(v: View?) {
