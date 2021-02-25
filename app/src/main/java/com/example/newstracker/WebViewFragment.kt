@@ -32,8 +32,6 @@ class WebViewFragment : FragmentLifecycleLogging() {
         return binding.root
     }
 
-    private val TAG = "WebViewFragment"
-
     @SuppressLint("SetJavaScriptEnabled")
     private fun displayWebsiteContent(urlLink: String?) {
         binding.webView.webViewClient = WebViewClient()
@@ -54,8 +52,6 @@ class WebViewFragment : FragmentLifecycleLogging() {
                 }
             }
         }
-        Log.i(TAG, "displayWebsiteContent: ${binding.webView.progress}")
-
     }
 
     override fun onDestroyView() {

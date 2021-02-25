@@ -23,6 +23,8 @@
     <string name="user_add_preference_error">Required Field</string>
     <string name="user_add_preference_unique">Label Already Used</string>
     <string name="user_add_preference_title">Add News Preference</string>
+    <string name="user_add_preference_required">Please input a single parameter</string>
+
 
 
     <string name="search_content_image_description">floating_action_button</string>
@@ -35,6 +37,7 @@
     <string name="dialog_preference_category"><b>Category: </b>%1$s</string>
     <string name="dialog_preference_country"><b>Country: </b>%1$s</string>
     <string name="dialog_preference_language"><b>Language: </b>%1$s</string>
+
 
     <string name="dialog_delete_title">Deleting a Saved Preference </string>
     <string name="dialog_delete_message">Are you sure you want to delete:\n<b>%1$s</b></string>
@@ -67,4 +70,6 @@
     <string name="dialog_save_article_message">Would you like to save:\n%1$s</string>
     <string name="dialog_save_article_positive">Save</string>
     <string name="dialog_save_article_negative">Cancel</string>
+
+
 </resources>

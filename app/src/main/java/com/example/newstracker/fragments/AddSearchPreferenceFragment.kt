@@ -30,7 +30,7 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
     private var _binding: FragmentAddSearchPreferenceBinding? = null
     private val binding get() = _binding!!
     private var canSave = false
-    private var toast : Toast? = null
+    private var toast: Toast? = null
 
 
     override fun onCreateView(
@@ -60,7 +60,6 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
 
     private fun indexNumber(key: String, array: Array<String>) = array.indexOf(key)
 
-    @SuppressLint("ShowToast")
     private fun retrieveValue() {
         val preferenceName = binding.newsLabel.editText?.text.toString()
         if (preferenceName.isBlank()) {
@@ -87,8 +86,11 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
             countryCode = convertAll("All", countryCode)
             categoryCode = convertAll("Any", categoryCode)
             languageCode = convertAll("Any", languageCode)
+            if (keywordText != "") {
+                canSave = true
+            }
 
-            if(canSave){
+            if (canSave) {
                 saveToRoomDatabase(
                     preferenceName,
                     keywordText,
@@ -96,24 +98,35 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
                     languageCode,
                     categoryCode
                 )
-            }else{
-                toast?.let{
-                    it.cancel()
-                    toast = Toast.makeText(requireContext(), "Please input a single parameter", Toast.LENGTH_SHORT)
-                } ?: run {
-                    toast = Toast.makeText(
-                        requireContext(),
-                        "Please input a single parameter",
-                        Toast.LENGTH_SHORT
-                    )
-                }
-                toast?.show()
+            } else {
+                showToastMessage()
             }
         }
     }
+
+    @SuppressLint("ShowToast")
+    private fun showToastMessage() {
+        toast?.let {
+            it.cancel()
+            toast = Toast.makeText(
+                requireContext(),
+                resources.getString(R.string.user_add_preference_required),
+                Toast.LENGTH_SHORT
+            )
+        } ?: run {
+            toast = Toast.makeText(
+                requireContext(),
+                resources.getString(R.string.user_add_preference_required),
+                Toast.LENGTH_SHORT
+            )
+        }
+        toast?.show()
+    }
+
+
     //converts all default values to blanks.
     private fun convertAll(defaultText: String, inputValue: String): String {
-        val query : String
+        val query: String
         if (defaultText != inputValue && inputValue != "") {
             query = inputValue
             canSave = true
@@ -141,7 +154,7 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
 
             val isUpdate = repository.checkLabel(preferenceLabel)
 
-            withContext(Main){
+            withContext(Main) {
                 if (isUpdate == 0) {
                     repository.addNewPreference(newPreference)
                     Navigation.findNavController(requireView())

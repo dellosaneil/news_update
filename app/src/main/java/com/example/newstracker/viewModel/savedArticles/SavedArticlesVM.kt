@@ -1,19 +1,21 @@
 package com.example.newstracker.viewModel.savedArticles
 
-import android.util.Log
-import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.newstracker.repository.SavedArticlesRepository
 import com.example.newstracker.room.entity.SavedArticlesEntity
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class SavedArticlesVM @ViewModelInject constructor(private val repository: SavedArticlesRepository) : ViewModel() {
+
+@HiltViewModel
+class SavedArticlesVM @Inject constructor(private val repository: SavedArticlesRepository) : ViewModel() {
 
     private var isFinishedLoading :MutableLiveData<Boolean> = MutableLiveData(false)
 

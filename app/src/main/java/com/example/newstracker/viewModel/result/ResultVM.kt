@@ -7,11 +7,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.newstracker.repository.RetrofitRepository
 import com.example.newstracker.retrofit.dataclass.NewsResponse
 import com.example.newstracker.room.entity.PreferenceEntity
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.Response
+
 
 class ResultVM(private val retrofitRepository: RetrofitRepository) : ViewModel() {
 

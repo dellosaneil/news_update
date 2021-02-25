@@ -10,7 +10,7 @@ import com.example.newstracker.room.entity.SavedArticlesEntity
 
 @Database(
     entities = [PreferenceEntity::class, SavedArticlesEntity::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class NewsTrackerDatabase : RoomDatabase() {

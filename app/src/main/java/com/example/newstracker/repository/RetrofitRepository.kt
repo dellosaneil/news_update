@@ -8,6 +8,7 @@ class RetrofitRepository {
     suspend fun repositoryArticles(category : String,
                                    country : String,
                                    keyword : String,
-                                   language : String
-    ): Response<NewsResponse> = RetrofitInstance.api.getBreakingNews(category, country, keyword, 100, language)
+                                   language : String,
+                                   pageSize : Int = 100
+    ): Response<NewsResponse> = RetrofitInstance.api.getBreakingNews(category, country, keyword, pageSize, language)
 }

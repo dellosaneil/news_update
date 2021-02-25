@@ -9,5 +9,6 @@ data class SavedArticlesEntity(
     val articleTitle : String,
     val articleDescription : String,
     val articleLink : String,
-    val source : String
+    val source : String,
+    val urlImage : String
 )
