@@ -1,12 +1,13 @@
 package com.example.newstracker.bottomNavigation
 
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.withCreated
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -22,6 +23,10 @@ import com.example.newstracker.room.entity.SavedArticlesEntity
 import com.example.newstracker.viewModel.savedArticles.SavedArticlesVM
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 @AndroidEntryPoint
@@ -36,6 +41,8 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
     private lateinit var navController: NavController
 
     private var previousValues = listOf<SavedArticlesEntity>()
+
+    private var latestSearch = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -55,10 +62,10 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
         initializeSearchView()
     }
 
-    private fun initializeSearchView(){
+    private fun initializeSearchView() {
         val searchViewMenu = binding.savedArticlesToolbar.menu.findItem(R.id.searchView_menu)
         val searchView = searchViewMenu?.actionView as? SearchView
-        searchView?.apply{
+        searchView?.apply {
             isSubmitButtonEnabled = false
             setOnQueryTextListener(this@SavedArticlesFragment)
         }
@@ -78,10 +85,15 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
     }
 
     private fun observeViewModel() {
-        savedArticleViewModel.isFinished().observe(viewLifecycleOwner, {
-            if (it) {
+        savedArticleViewModel.isFinished().observe(viewLifecycleOwner, { finished ->
+            if (finished) {
                 visibilityControl()
-                searchArticleList("")
+                savedArticleViewModel.articleList().observe(viewLifecycleOwner) { articleList ->
+                    articleList?.let{
+                        myAdapter.setSavedArticles(it)
+                        previousValues = it
+                    }
+                }
             }
         })
     }
@@ -99,16 +111,21 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
     }
 
     override fun swipePreferenceIndex(index: Int) {
-//        previousValues = savedArticleViewModel.getSavedArticles()?.value!!
-//        val deletedArticle = savedArticleViewModel.getSavedArticles()?.value?.get(index)
-//        savedArticleViewModel.deleteArticle(deletedArticle!!)
-//        createSnackBar(deletedArticle)
+        val deletedArticle = previousValues[index]
+        savedArticleViewModel.deleteArticle(deletedArticle)
+        createSnackBar(deletedArticle, latestSearch)
+        searchArticleList(latestSearch)
     }
 
-    private fun createSnackBar(deletedArticle: SavedArticlesEntity) {
+    private fun createSnackBar(deletedArticle: SavedArticlesEntity, searched : String) {
         Snackbar.make(requireView(), getString(R.string.article_deleted), Snackbar.LENGTH_LONG)
             .setAction(getString(R.string.undo)) {
-                savedArticleViewModel.restoreDeletedArticle(deletedArticle)
+                lifecycleScope.launch(IO){
+                    savedArticleViewModel.restoreDeletedArticle(deletedArticle)
+                    withContext(Main) {
+                        searchArticleList(searched)
+                    }
+                }
             }
             .show()
     }
@@ -119,19 +136,16 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
     }
 
     override fun onQueryTextChange(query: String?): Boolean {
-        query?.let{
+        query?.let {
             searchArticleList(it)
         }
         return true
     }
 
     private fun searchArticleList(query: String) {
-        val q = "%$query%"
-        savedArticleViewModel.searchArticles(q).observe(viewLifecycleOwner){
-            it?.let{
-                myAdapter.setSavedArticles(it)
-            }
-        }
+        latestSearch = query
+        savedArticleViewModel.searchArticles(query)
+
     }
 }
 

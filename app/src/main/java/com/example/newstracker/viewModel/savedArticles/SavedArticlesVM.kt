@@ -20,28 +20,33 @@ class SavedArticlesVM @Inject constructor(private val repository: SavedArticlesR
 
     private var isFinishedLoading: MutableLiveData<Boolean> = MutableLiveData(false)
 
-
-    private var savedArticles: LiveData<List<SavedArticlesEntity>>? = null
+    private val _articleList = MutableLiveData<List<SavedArticlesEntity>?>()
+    fun articleList(): LiveData<List<SavedArticlesEntity>?> = _articleList
 
     init {
-        viewModelScope.launch(IO) {
-            withContext(Main) {
+        viewModelScope.launch(IO){
+            searchArticles("")
+            withContext(Main){
                 isFinishedLoading.value = true
             }
         }
+
     }
 
     fun isFinished() = isFinishedLoading
 
-    fun restoreDeletedArticle(savedArticle: SavedArticlesEntity) {
-        viewModelScope.launch(IO) {
-            repository.saveArticle(savedArticle)
-        }
+    suspend fun restoreDeletedArticle(savedArticle: SavedArticlesEntity) {
+        repository.saveArticle(savedArticle)
     }
 
-    fun searchArticles(search: String) : LiveData<List<SavedArticlesEntity>> {
+    fun searchArticles(search: String) {
         val convert = "%$search%"
-        return repository.searchArticles(convert)
+        viewModelScope.launch(IO) {
+            val articles = repository.searchArticles(convert)
+            withContext(Main) {
+                _articleList.value = articles
+            }
+        }
     }
 
 

@@ -21,7 +21,7 @@ interface SavedArticlesDao {
     suspend fun clearSavedArticles()
 
     @Query("SELECT * FROM saved_articles_table WHERE articleTitle LIKE :search OR source LIKE :search ORDER BY time DESC")
-    fun searchArticles(search : String) : LiveData<List<SavedArticlesEntity>>
+    fun searchArticles(search : String) : List<SavedArticlesEntity>?
 
 
 }
