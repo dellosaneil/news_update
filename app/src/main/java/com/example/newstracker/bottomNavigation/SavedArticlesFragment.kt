@@ -42,27 +42,26 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSavedBinding.inflate(layoutInflater)
-        initializeRecyclerView()
-
-        val itemSwipeListener = SearchPreferenceSwipeListener(this)
-        val itemTouchHelper = ItemTouchHelper(itemSwipeListener)
-        itemTouchHelper.attachToRecyclerView(binding.savedArticlesRecyclerView)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initializeRecyclerView()
+        val itemSwipeListener = SearchPreferenceSwipeListener(this)
+        val itemTouchHelper = ItemTouchHelper(itemSwipeListener)
+        itemTouchHelper.attachToRecyclerView(binding.savedArticlesRecyclerView)
         navController = Navigation.findNavController(view)
-        setHasOptionsMenu(true)
+        initializeSearchView()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.search_menu, menu)
-        val search = menu.findItem(R.id.searchView_menu)
-        val searchView = search?.actionView as? SearchView
-        searchView?.isSubmitButtonEnabled = true
-        searchView?.setOnQueryTextListener(this)
-        super.onCreateOptionsMenu(menu, inflater)
+    private fun initializeSearchView(){
+        val searchViewMenu = binding.savedArticlesToolbar.menu.findItem(R.id.searchView_menu)
+        val searchView = searchViewMenu?.actionView as? SearchView
+        searchView?.apply{
+            isSubmitButtonEnabled = false
+            setOnQueryTextListener(this@SavedArticlesFragment)
+        }
     }
 
 
@@ -82,14 +81,8 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
         savedArticleViewModel.isFinished().observe(viewLifecycleOwner, {
             if (it) {
                 visibilityControl()
-                startObserveForChanges()
+                searchArticleList("")
             }
-        })
-    }
-
-    private fun startObserveForChanges() {
-        savedArticleViewModel.getSavedArticles()?.observe(viewLifecycleOwner, {
-            myAdapter.setSavedArticles(it)
         })
     }
 
@@ -106,10 +99,10 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
     }
 
     override fun swipePreferenceIndex(index: Int) {
-        previousValues = savedArticleViewModel.getSavedArticles()?.value!!
-        val deletedArticle = savedArticleViewModel.getSavedArticles()?.value?.get(index)
-        savedArticleViewModel.deleteArticle(deletedArticle!!)
-        createSnackBar(deletedArticle)
+//        previousValues = savedArticleViewModel.getSavedArticles()?.value!!
+//        val deletedArticle = savedArticleViewModel.getSavedArticles()?.value?.get(index)
+//        savedArticleViewModel.deleteArticle(deletedArticle!!)
+//        createSnackBar(deletedArticle)
     }
 
     private fun createSnackBar(deletedArticle: SavedArticlesEntity) {
@@ -120,14 +113,37 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
             .show()
     }
 
-    private val TAG = "SavedArticlesFragment"
 
     override fun onQueryTextSubmit(query: String?): Boolean {
         return true
     }
 
-    override fun onQueryTextChange(newText: String?): Boolean {
-        Log.i(TAG, "onQueryTextChange: $newText")
+    override fun onQueryTextChange(query: String?): Boolean {
+        query?.let{
+            searchArticleList(it)
+        }
         return true
     }
+
+    private fun searchArticleList(query: String) {
+        val q = "%$query%"
+        savedArticleViewModel.searchArticles(q).observe(viewLifecycleOwner){
+            it?.let{
+                myAdapter.setSavedArticles(it)
+            }
+        }
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

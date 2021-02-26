@@ -15,16 +15,17 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class SavedArticlesVM @Inject constructor(private val repository: SavedArticlesRepository) : ViewModel() {
+class SavedArticlesVM @Inject constructor(private val repository: SavedArticlesRepository) :
+    ViewModel() {
 
-    private var isFinishedLoading :MutableLiveData<Boolean> = MutableLiveData(false)
+    private var isFinishedLoading: MutableLiveData<Boolean> = MutableLiveData(false)
+
 
     private var savedArticles: LiveData<List<SavedArticlesEntity>>? = null
 
     init {
         viewModelScope.launch(IO) {
-            setSavedArticles()
-            withContext(Main){
+            withContext(Main) {
                 isFinishedLoading.value = true
             }
         }
@@ -32,20 +33,19 @@ class SavedArticlesVM @Inject constructor(private val repository: SavedArticlesR
 
     fun isFinished() = isFinishedLoading
 
-    private fun setSavedArticles() {
-        savedArticles = repository.getAllSavedArticles()
-    }
-
-    fun getSavedArticles() = savedArticles
-
-    fun restoreDeletedArticle(savedArticle: SavedArticlesEntity){
+    fun restoreDeletedArticle(savedArticle: SavedArticlesEntity) {
         viewModelScope.launch(IO) {
             repository.saveArticle(savedArticle)
         }
     }
 
+    fun searchArticles(search: String) : LiveData<List<SavedArticlesEntity>> {
+        val convert = "%$search%"
+        return repository.searchArticles(convert)
+    }
 
-    fun deleteArticle(savedArticle : SavedArticlesEntity){
+
+    fun deleteArticle(savedArticle: SavedArticlesEntity) {
         viewModelScope.launch(IO) { repository.deleteArticle(savedArticle) }
     }
 }
