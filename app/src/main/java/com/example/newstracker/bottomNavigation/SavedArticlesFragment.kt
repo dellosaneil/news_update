@@ -1,10 +1,10 @@
 package com.example.newstracker.bottomNavigation
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.util.Log
+import android.view.*
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
@@ -26,7 +26,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.OnOpenLinkListener,
-    SearchPreferenceSwipeListener.DeleteSwipe {
+    SearchPreferenceSwipeListener.DeleteSwipe, SearchView.OnQueryTextListener {
 
     private var _binding: FragmentSavedBinding? = null
     private val binding get() = _binding!!
@@ -53,6 +53,16 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.search_menu, menu)
+        val search = menu.findItem(R.id.searchView_menu)
+        val searchView = search?.actionView as? SearchView
+        searchView?.isSubmitButtonEnabled = true
+        searchView?.setOnQueryTextListener(this)
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
 
@@ -104,9 +114,20 @@ class SavedArticlesFragment : FragmentLifecycleLogging(), SavedArticlesAdapter.O
 
     private fun createSnackBar(deletedArticle: SavedArticlesEntity) {
         Snackbar.make(requireView(), getString(R.string.article_deleted), Snackbar.LENGTH_LONG)
-            .setAction(getString(R.string.undo)){
+            .setAction(getString(R.string.undo)) {
                 savedArticleViewModel.restoreDeletedArticle(deletedArticle)
             }
             .show()
+    }
+
+    private val TAG = "SavedArticlesFragment"
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        return true
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        Log.i(TAG, "onQueryTextChange: $newText")
+        return true
     }
 }

@@ -71,6 +71,8 @@
     <string name="settings_dialog_delete_content">This would clear the contents of your %1$s database</string>
     <string name="settings_dialog_clear">Clear</string>
 
+    <string name="search">Search</string>
+
 
     <string name="redirecting">Redirecting…</string>
     <string name="undo">Undo</string>
