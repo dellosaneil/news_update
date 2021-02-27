@@ -1,10 +1,8 @@
 package com.example.newstracker.bottomNavigation
 
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -22,13 +20,17 @@ import com.example.newstracker.recyclerView.SearchPreferenceAdapter
 import com.example.newstracker.room.entity.PreferenceEntity
 import com.example.newstracker.viewModel.searchPreference.SearchPreferenceVM
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnItemClickedListener,
-    SearchPreferenceSwipeListener.DeleteSwipe, View.OnClickListener {
+    SearchPreferenceSwipeListener.DeleteSwipe, View.OnClickListener,
+    SearchView.OnQueryTextListener {
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
@@ -38,32 +40,44 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
     private lateinit var navController: NavController
     private lateinit var preferencesList: List<PreferenceEntity>
 
+    private var latestSearch = ""
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSearchBinding.inflate(inflater, container, false)
-        initializeRecyclerView()
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initializeRecyclerView()
         val itemSwipeListener = SearchPreferenceSwipeListener(this)
         val itemTouchHelper = ItemTouchHelper(itemSwipeListener)
         itemTouchHelper.attachToRecyclerView(binding.searchFragmentRecyclerView)
         navController = Navigation.findNavController(view)
-        binding.searchFragmentAdd.setOnClickListener(this)
+        binding.searchFragmentFloatBar.setOnClickListener(this)
+        initializeSearchView()
+    }
+
+    private fun initializeSearchView() {
+        val searchVal = binding.searchFragmentToolbar.menu.findItem(R.id.searchView_menu)
+        val searchView = searchVal?.actionView as? SearchView
+        searchView?.apply {
+            isSubmitButtonEnabled = true
+            setOnQueryTextListener(this@SearchFragment)
+        }
     }
 
     private fun initializeRecyclerView() {
         myAdapter = SearchPreferenceAdapter(this)
-        binding.searchFragmentRecyclerView.run {
+        binding.searchFragmentRecyclerView.apply {
             adapter = myAdapter
             layoutManager = LinearLayoutManager(requireActivity())
             val customDecorator = RecyclerViewDecorator(6, 6)
             addItemDecoration(customDecorator)
-            searchPreferenceVM.retrieveAllPreference()
+            searchPreferenceVM.preferences
                 .observe(viewLifecycleOwner, {
                     myAdapter.setSearchPreferences(it)
                     preferencesList = it
@@ -103,10 +117,30 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
             }
     }
 
+
     private fun deletePreference(preference: PreferenceEntity) {
         lifecycleScope.launch(IO) {
             searchPreferenceVM.deletePreference(preference)
+            withContext(Main) {
+                showSnackBar(preference)
+
+                searchPreferenceVM.searchPreference(latestSearch)
+            }
         }
+    }
+
+    private fun showSnackBar(preference: PreferenceEntity) {
+        Snackbar.make(requireView(), getString(R.string.article_deleted), Snackbar.LENGTH_LONG)
+            .apply {
+                setAction(getString(R.string.undo)) {
+                    lifecycleScope.launch(IO) {
+                        searchPreferenceVM.restorePreference(preference)
+                        withContext(Main) {
+                            searchPreferenceVM.searchPreference(latestSearch)
+                        }
+                    }
+                }
+            }.show()
     }
 
     override fun swipePreferenceIndex(index: Int) {
@@ -115,7 +149,19 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
 
     override fun onClick(v: View?) {
         when (v!!.id) {
-            R.id.searchFragmentAdd -> navController.navigate(R.id.searchPreferences_addNewSearchPreference)
+            R.id.searchFragment_floatBar -> navController.navigate(R.id.searchPreferences_addNewSearchPreference)
         }
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        return true
+    }
+
+    override fun onQueryTextChange(query: String?): Boolean {
+        query?.let {
+            latestSearch = it
+            searchPreferenceVM.searchPreference(it)
+        }
+        return true
     }
 }

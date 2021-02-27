@@ -13,8 +13,8 @@ interface PreferenceDao {
     @Query("SELECT COUNT(label) FROM preference_table WHERE label = :newLabel")
     suspend fun checkLabel(newLabel : String) : Int
 
-    @Query("SELECT * FROM preference_table")
-    fun getAllSavedPreference() : LiveData<List<PreferenceEntity>>
+    @Query("SELECT * FROM preference_table WHERE label LIKE :search OR country LIKE :search OR keyword LIKE :search OR language LIKE :search ORDER BY time")
+    fun searchPreference(search : String) : List<PreferenceEntity>
 
     @Delete
     suspend fun deletePreference(preference: PreferenceEntity)

@@ -13,5 +13,6 @@ data class PreferenceEntity(
     val category : String,
     val country : String,
     val keyword : String,
-    val language : String
+    val language : String,
+    val time : Long = System.currentTimeMillis()
 ): Parcelable

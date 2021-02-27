@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 class PreferenceRepository @Inject constructor(private val preferenceDao: PreferenceDao) {
 
-    fun getAllPreferences() = preferenceDao.getAllSavedPreference()
+    fun searchPreference(search : String) = preferenceDao.searchPreference(search)
 
     suspend fun addNewPreference(preference: PreferenceEntity) =
         preferenceDao.addPreference(preference)
