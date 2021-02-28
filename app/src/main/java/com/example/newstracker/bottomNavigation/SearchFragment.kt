@@ -100,30 +100,11 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
         _binding = null
     }
 
-    private fun checkDelete(index: Int) {
-        val preference = preferencesList[index]
-        MaterialAlertDialogBuilder(requireContext())
-            .apply {
-                setTitle(resources.getString(R.string.dialog_delete_title))
-                setMessage((resources.getString(R.string.dialog_delete_message, preference.label)))
-                setPositiveButton(resources.getString(R.string.dialog_delete_confirm)) { _, _ ->
-                    deletePreference(preference)
-                }
-                setNegativeButton(resources.getString(R.string.dialog_delete_cancel)) { _, _ ->
-                    myAdapter.notifyItemChanged(index)
-                }
-                setCancelable(false)
-                show()
-            }
-    }
-
-
     private fun deletePreference(preference: PreferenceEntity) {
         lifecycleScope.launch(IO) {
             searchPreferenceVM.deletePreference(preference)
             withContext(Main) {
                 showSnackBar(preference)
-
                 searchPreferenceVM.searchPreference(latestSearch)
             }
         }
@@ -144,7 +125,7 @@ class SearchFragment : FragmentLifecycleLogging(), SearchPreferenceAdapter.OnIte
     }
 
     override fun swipePreferenceIndex(index: Int) {
-        checkDelete(index)
+        deletePreference(preferencesList[index])
     }
 
     override fun onClick(v: View?) {

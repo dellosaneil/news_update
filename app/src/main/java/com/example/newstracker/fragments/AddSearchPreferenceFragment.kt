@@ -8,29 +8,28 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Toast
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import com.example.newstracker.FragmentLifecycleLogging
 import com.example.newstracker.R
 import com.example.newstracker.databinding.FragmentAddSearchPreferenceBinding
-import com.example.newstracker.repository.PreferenceRepository
 import com.example.newstracker.room.entity.PreferenceEntity
+import com.example.newstracker.viewModel.addSearchPreference.AddSearchPreferenceVM
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
 
-    @Inject
-    lateinit var repository: PreferenceRepository
+
     private var _binding: FragmentAddSearchPreferenceBinding? = null
     private val binding get() = _binding!!
-    private var canSave = false
     private var toast: Toast? = null
+    private val searchPreferenceViewModel: AddSearchPreferenceVM by viewModels()
 
 
     override fun onCreateView(
@@ -43,10 +42,8 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initializeCategoryDropDown()
-        initializeLanguageDropDown()
-        initializeCountryDropDown()
-        binding.newsSaveButton.setOnClickListener { retrieveValue() }
+        initializeAutoCompleteTextViews()
+        binding.newsSaveButton.setOnClickListener { checkValues() }
         setUpNavigateUp(view)
     }
 
@@ -60,46 +57,52 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
 
     private fun indexNumber(key: String, array: Array<String>) = array.indexOf(key)
 
-    private fun retrieveValue() {
-        val preferenceName = binding.newsLabel.editText?.text.toString()
-        if (preferenceName.isBlank()) {
-            binding.newsLabel.error = resources.getString(R.string.user_add_preference_error)
-        } else {
+    /* 0 -> Preference Label
+    *  1 -> Keyword
+    *  2 -> Category
+    *  3 -> Country Name
+    *  4 -> Language Name */
+    private fun checkValues() {
+        val rawPreferenceStrings = arrayOf(
+            binding.newsLabel.editText?.text.toString(),
+            binding.newsKeyword.editText?.text.toString(),
+            binding.newsCategory.editText?.text.toString(),
+            binding.newsCountry.editText?.text.toString(),
+            binding.newsLanguage.editText?.text.toString()
+        )
+        val preferenceKeys = arrayOf(
+            resources.getStringArray(R.array.country_list_keys),
+            resources.getStringArray(R.array.language_list_values)
+        )
+        val preferenceValues = arrayOf(
+            resources.getStringArray(R.array.country_list_values),
+            resources.getStringArray(R.array.language_list_values)
+        )
+        if (searchPreferenceViewModel.checkPreferenceLabel(rawPreferenceStrings[0])) {
             binding.newsLabel.isErrorEnabled = false
-            val countryName = binding.newsCountry.editText?.text.toString()
-            val languageName = binding.newsLanguage.editText?.text.toString()
-            var countryIndex =
-                indexNumber(countryName, resources.getStringArray(R.array.country_list_keys))
-            var languageIndex =
-                indexNumber(languageName, resources.getStringArray(R.array.language_list_keys))
-            if (countryIndex == -1) {
-                countryIndex = 0
-            }
-            if (languageIndex == -1) {
-                languageIndex = 0
-            }
+            val code = searchPreferenceViewModel.processPreferenceValues(
+                rawPreferenceStrings,
+                preferenceKeys,
+                preferenceValues
+            )
+            handleCode(code)
 
-            val keywordText = binding.newsKeyword.editText?.text.toString()
-            var countryCode = resources.getStringArray(R.array.country_list_values)[countryIndex]
-            var languageCode = resources.getStringArray(R.array.language_list_values)[languageIndex]
-            var categoryCode = binding.newsCategory.editText?.text.toString()
-            countryCode = convertAll("All", countryCode)
-            categoryCode = convertAll("Any", categoryCode)
-            languageCode = convertAll("Any", languageCode)
-            if (keywordText != "") {
-                canSave = true
-            }
+        } else {
+            binding.newsLabel.error = resources.getString(R.string.user_add_preference_error)
+        }
+    }
 
-            if (canSave) {
-                saveToRoomDatabase(
-                    preferenceName,
-                    keywordText,
-                    countryCode,
-                    languageCode,
-                    categoryCode
-                )
-            } else {
+    private fun handleCode(code: Int) {
+        when (code) {
+            1 -> {
+                binding.newsLabel.error = getString(R.string.user_add_preference_unique)
+            }
+            2 -> {
                 showToastMessage()
+            }
+            else -> {
+                binding.newsLabel.error = null
+                Navigation.findNavController(requireView()).navigateUp()
             }
         }
     }
@@ -124,70 +127,23 @@ class AddSearchPreferenceFragment : FragmentLifecycleLogging() {
     }
 
 
-    //converts all default values to blanks.
-    private fun convertAll(defaultText: String, inputValue: String): String {
-        val query: String
-        if (defaultText != inputValue && inputValue != "") {
-            query = inputValue
-            canSave = true
-        } else {
-            query = ""
+    private fun initializeAutoCompleteTextViews() {
+        val textViewValues = arrayOf(
+            resources.getStringArray(R.array.country_list_keys),
+            resources.getStringArray(R.array.language_list_keys),
+            resources.getStringArray(R.array.category_list)
+        )
+        val editTextArray = arrayOf(
+            binding.newsCountry.editText,
+            binding.newsLanguage.editText,
+            binding.newsCategory.editText
+        )
+
+        repeat(3) {
+            val autoCompleteTextViewAdapter =
+                ArrayAdapter(requireContext(), R.layout.list_item, textViewValues[it])
+            (editTextArray[it] as? AutoCompleteTextView)?.setAdapter(autoCompleteTextViewAdapter)
         }
-        return query
-    }
-
-    private fun saveToRoomDatabase(
-        preferenceLabel: String,
-        keywordText: String,
-        countryCode: String,
-        languageCode: String,
-        categoryCode: String
-    ) {
-        lifecycleScope.launch(IO) {
-            val newPreference = PreferenceEntity(
-                preferenceLabel,
-                categoryCode,
-                countryCode,
-                keywordText,
-                languageCode
-            )
-
-            val isUpdate = repository.checkLabel(preferenceLabel)
-
-            withContext(Main) {
-                if (isUpdate == 0) {
-                    repository.addNewPreference(newPreference)
-                    Navigation.findNavController(requireView())
-                        .navigate(R.id.addNewSearchPreference_searchPreferences)
-                } else {
-                    binding.newsLabel.error =
-                        resources.getString(R.string.user_add_preference_unique)
-                }
-            }
-        }
-    }
-
-
-    private fun initializeCountryDropDown() {
-        val items = resources.getStringArray(R.array.country_list_keys)
-        val adapter = ArrayAdapter(requireContext(), R.layout.list_item, items)
-        (binding.newsCountry.editText as? AutoCompleteTextView)
-            ?.setAdapter(adapter)
-    }
-
-    private fun initializeLanguageDropDown() {
-        val items = resources.getStringArray(R.array.language_list_keys)
-        val adapter = ArrayAdapter(requireContext(), R.layout.list_item, items)
-        (binding.newsLanguage.editText as? AutoCompleteTextView)
-            ?.setAdapter(adapter)
-
-    }
-
-    private fun initializeCategoryDropDown() {
-        val items = resources.getStringArray(R.array.category_list)
-        val adapter = ArrayAdapter(requireContext(), R.layout.list_item, items)
-        (binding.newsCategory.editText as? AutoCompleteTextView)
-            ?.setAdapter(adapter)
     }
 
     override fun onDestroyView() {

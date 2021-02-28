@@ -38,9 +38,6 @@
         android:name="com.example.newstracker.fragments.AddSearchPreferenceFragment"
         android:label="fragment_user_news_preference"
         tools:layout="@layout/fragment_add_search_preference">
-        <action
-            android:id="@+id/addNewSearchPreference_searchPreferences"
-            app:destination="@id/searchPreferences" />
     </fragment>
 
 

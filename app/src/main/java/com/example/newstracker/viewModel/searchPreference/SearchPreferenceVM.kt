@@ -14,28 +14,31 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class SearchPreferenceVM @Inject constructor(private val repository: PreferenceRepository) : ViewModel() {
+class SearchPreferenceVM @Inject constructor(private val repository: PreferenceRepository) :
+    ViewModel() {
 
     private val _preferences = MutableLiveData<List<PreferenceEntity>>()
 
-    val preferences : LiveData<List<PreferenceEntity>> = _preferences
+    val preferences: LiveData<List<PreferenceEntity>> = _preferences
 
-    init{
+    init {
         searchPreference()
     }
 
-    fun searchPreference(search : String = ""){
+    fun searchPreference(search: String = "") {
         val convert = "%$search%"
-        viewModelScope.launch(IO){
+        viewModelScope.launch(IO) {
             val tempPreferences = repository.searchPreference(convert)
-            withContext(Main){
+            withContext(Main) {
                 _preferences.value = tempPreferences
             }
         }
     }
 
-    suspend fun restorePreference(preference: PreferenceEntity) = repository.addNewPreference(preference)
+    suspend fun restorePreference(preference: PreferenceEntity) =
+        repository.addNewPreference(preference)
 
-    suspend fun deletePreference(preference : PreferenceEntity) = repository.deletePreference(preference)
+    suspend fun deletePreference(preference: PreferenceEntity) =
+        repository.deletePreference(preference)
 
 }
